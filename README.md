@@ -1,3 +1,8 @@
+# GPS QP Builder v7
+
+Final cleanup pass: the top navigation contains no left-side logo, PDF/DOCX filenames use `GPS-Class-Subject`, and direct sharing controls are removed.
+
+All V6 features are retained, including blueprint/marks distribution, A4 page-break controls, language selection for English/Hindi/Sanskrit, rich formatting, drag-and-drop ordering, duplicate sections, PDF/DOCX export, dark mode, and preview zoom.
 # GPS QP Builder
 
 Mobile-friendly question paper builder for Goodwill Public School.
