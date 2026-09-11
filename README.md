@@ -57,3 +57,6 @@ The built-in 10/day browser counter is only an accidental-use guard, not real se
 ## Data/privacy
 
 Drafts and uploaded paper images are kept in the teacher's browser/local storage. They are not automatically stored in a database.
+
+## V5 logo fix
+The GPS/Goodwill logo used by the app UI is imported from `src/gps-logo.png` so Vite bundles it into the application. This avoids broken image paths when deploying the app through a Worker setup that does not expose arbitrary root files the way Pages does.
