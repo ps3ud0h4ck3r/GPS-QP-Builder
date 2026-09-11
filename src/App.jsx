@@ -493,6 +493,21 @@ Generate exactly ${count} items.`;
 
 // ─── Preview ──────────────────────────────────────────────────────────────────
 
+function formatInstructions(text) {
+  if (!text) return "";
+  const normalized = String(text).replace(/\r\n/g, "\n").trim();
+  if (!normalized) return "";
+
+  // Turn common numbered instructions such as "1. A 2. B 3. C" into separate lines.
+  const withBreaks = normalized.replace(/\s+(?=\d+\.\s)/g, "\n");
+  return withBreaks
+    .split(/\n+/)
+    .map(line => line.trim())
+    .filter(Boolean)
+    .map(line => `<div style="margin:2px 0">${line}</div>`)
+    .join("");
+}
+
 function buildPreviewHTML(header, sections) {
   const { school, location, exam, session, classVal, subject, duration, maxMarks, date, instructions, logoUrl } = header;
 
@@ -529,19 +544,25 @@ function buildPreviewHTML(header, sections) {
             inner += `<div style="margin-top:8px"><img src="${q.diagram.dataUrl}" style="max-width:100%;max-height:140px;display:block;border:1px solid #ddd" /></div>`;
           }
         }
-        if (["short2","short3","long","num","diagram"].includes(sec.typeId)) {
-          const lines = sec.typeId === "long" ? 6 : 3;
+        // Short and long answer questions are answered on separate answer sheets,
+        // so do not reserve writing space in the question paper.
+        if (["num","diagram"].includes(sec.typeId)) {
+          const lines = 3;
           inner += Array.from({length:lines},()=>`<div style="border-bottom:1px solid #ccc;height:22px;margin-top:4px"></div>`).join("");
         }
       }
 
-      return `<div style="margin-bottom:12px">
-        <span style="font-weight:600">${ALPHA[qi]}.</span> ${inner}
+      return `<div style="margin-bottom:12px;page-break-inside:avoid;break-inside:avoid;display:flex;align-items:flex-start;gap:5px">
+        <span style="font-weight:600;flex:0 0 auto">${ALPHA[qi]}.</span>
+        <div style="flex:1;min-width:0">${inner}</div>
       </div>`;
     }).join("");
 
-    return `<div style="margin-bottom:22px">
-      <div style="font-weight:700;margin-bottom:8px">Q${si+1}. ${heading}: ${marksStr}</div>
+    return `<div style="margin-bottom:22px;page-break-inside:auto;break-inside:auto">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;gap:16px;font-weight:700;margin-bottom:8px;line-height:1.3">
+        <span>Q${si+1}. ${heading}</span>
+        <span style="margin-left:auto;white-space:nowrap">${marksStr}</span>
+      </div>
       ${qHTML}
     </div>`;
   }).join("");
@@ -562,7 +583,7 @@ function buildPreviewHTML(header, sections) {
       <span>Subject: ${subject}</span>
       <span>M.M.: ${maxMarks} ${totalMarks != parseInt(maxMarks) ? `<span style="color:#dc2626;font-size:11px">(current: ${totalMarks})</span>` : ""}</span>
     </div>
-    ${instructions ? `<div style="font-size:12px;margin-bottom:14px;padding:8px 12px;border:1px solid #e5e7eb;border-radius:4px"><strong>Instructions:</strong> ${instructions}</div>` : ""}
+    ${instructions ? `<div style="font-size:12px;margin-bottom:14px;padding:8px 12px;border:1px solid #e5e7eb;border-radius:4px;line-height:1.55"><strong style="display:block;margin-bottom:3px">Instructions:</strong>${formatInstructions(instructions)}</div>` : ""}
     ${sectionHTML}
     <div style="text-align:center;margin-top:20px;color:#888;font-size:12px">***************************************</div>
     <div style="text-align:center;font-size:12px;margin-top:6px">1</div>
