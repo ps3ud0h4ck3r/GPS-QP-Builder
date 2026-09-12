@@ -4,7 +4,7 @@
   "version": "3.0.4",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "node scripts/restore-sources.mjs && vite",
     "build": "node scripts/restore-sources.mjs && vite build",
     "preview": "vite preview"
   },
