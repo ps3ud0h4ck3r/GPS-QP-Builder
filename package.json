@@ -1,11 +1,11 @@
 {
   "name": "gps-qp-builder",
   "private": true,
-  "version": "3.0.3",
+  "version": "3.0.4",
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "node scripts/restore-sources.mjs && vite build",
     "preview": "vite preview"
   },
   "dependencies": {
