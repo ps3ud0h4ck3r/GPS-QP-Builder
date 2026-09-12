@@ -1,0 +1,11 @@
+name = "gps-qp-builder"
+main = "worker/index.js"
+compatibility_date = "2026-09-12"
+
+[assets]
+directory = "./dist"
+binding = "ASSETS"
+
+# Create a D1 database named gps-qp-builder in Cloudflare and bind it in
+# Workers & Pages as variable name DB. Keep the database ID in Cloudflare,
+# rather than committing it here.

@@ -1,67 +1,89 @@
-# GPS QP Builder v7
+# GPS QP Builder v9
 
-Final cleanup pass: the top navigation contains no left-side logo, PDF/DOCX filenames use `GPS-Class-Subject`, and direct sharing controls are removed.
+School-wide Question Paper Builder for Goodwill Public School.
 
-All V6 features are retained, including blueprint/marks distribution, A4 page-break controls, language selection for English/Hindi/Sanskrit, rich formatting, drag-and-drop ordering, duplicate sections, PDF/DOCX export, dark mode, and preview zoom.
-# GPS QP Builder
+## Included
 
-Mobile-friendly question paper builder for Goodwill Public School.
+- Individual teacher/admin accounts
+- Secure cookie sessions and role-based access
+- Admin user management
+- Admin impersonation with a clear return-to-admin control
+- Account details and password changes
+- Server-saved personal drafts, templates and settings
+- Automatic marks blueprint and max-marks protection
+- Section and question drag-and-drop ordering
+- Better question numbering
+- A4 page-aware preview and page-break controls
+- English, Hindi and Sanskrit paper labels
+- Rich formatting: bold, italic, underline, alignment, lists, superscript, subscript, symbols and tables
+- Direct A4 PDF export
+- DOCX export
+- Dark mode and print font-size selector
+- GPS branding
+- No AI generation or AI API dependency
+- No WhatsApp, Email or direct sharing controls
 
-## Run locally
+## Cloudflare setup
 
-```bash
-npm install
-npm run dev
-```
+This version uses Cloudflare Workers + D1 for authentication and per-user data.
 
-Open the local Vite URL shown in the terminal.
+### 1. Create a D1 database
 
-## Build
+Create a Cloudflare D1 database named `gps-qp-builder`.
+
+Run `migrations/0001_init.sql` against that database.
+
+### 2. Bind the database
+
+In the Worker settings, add a D1 binding:
+
+- Variable name: `DB`
+- Database: your `gps-qp-builder` D1 database
+
+The Worker already expects the static asset binding named `ASSETS` from `wrangler.toml`.
+
+### 3. Add the first-time setup secret
+
+Create a secret environment variable:
+
+- `GPS_SETUP_KEY` = a long random secret you choose
+
+On first launch, when the database has no users, GPS QP Builder shows a School Setup screen. Enter that setup key and create the first admin accounts. After that, admins can create the remaining teacher and admin accounts from the Admin Panel.
+
+### 4. Deploy
+
+Build command:
 
 ```bash
 npm run build
 ```
 
-Vite creates the production site in `dist`.
+Deploy command:
 
-## Cloudflare Pages
+```bash
+npx wrangler deploy
+```
 
-- Connect this GitHub repository to Cloudflare Pages.
-- Framework preset: Vite
-- Build command: `npm run build`
-- Output directory: `dist`
+Root directory: `/`
 
-### AI setup
+The included `wrangler.toml` points the Worker at `worker/index.js` and serves the Vite `dist` directory as static assets.
 
-Add these Cloudflare environment variables:
+## Account model
 
-- `ANTHROPIC_API_KEY` = your Anthropic API key
-- `ANTHROPIC_MODEL` = optional model override
+Teachers have their own drafts, templates and settings. Admins can manage users and temporarily log in as another user without learning that user's password. Impersonation creates a separate short-lived session and is logged in the audit table.
 
-The API key is used only by the Cloudflare Function at `/api/generate`. Never put the key in browser code or GitHub.
+For the initial rollout, create your three admin accounts in School Setup, then use Admin Panel to bulk-create the 30 teachers. The bulk format is one line per teacher:
 
-The built-in 10/day browser counter is only an accidental-use guard, not real server-side security. For a large public rollout, add server-side rate limiting/authentication or disable public AI generation.
+```text
+Name, username, temporaryPassword, email, teacher
+```
 
-## Included features
+Newly created users are flagged to change their password on first login. Passwords are stored as PBKDF2-SHA-256 hashes, never as plain text.
 
-- Question paper builder with local drafts
-- Mobile layout and PWA install support
-- GPS logo/icon branding
-- Direct PDF export
-- DOCX export
-- WhatsApp, Email and native PDF sharing
-- Max marks protection
-- Section drag-and-drop and question drag-and-drop, with move buttons as fallback
-- Duplicate sections
-- Rich question editor with bold, italic, superscript, subscript, Greek symbols and tables
-- Dark mode
-- Print font size selector
-- Preview zoom
-- Diagram upload, drawing and reserved diagram space
+## Data
 
-## Data/privacy
+Workspace data is stored per user in D1. This means a teacher can sign in from another phone or computer and still access their saved work.
 
-Drafts and uploaded paper images are kept in the teacher's browser/local storage. They are not automatically stored in a database.
+## AI
 
-## V5 logo fix
-The GPS/Goodwill logo used by the app UI is imported from `src/gps-logo.png` so Vite bundles it into the application. This avoids broken image paths when deploying the app through a Worker setup that does not expose arbitrary root files the way Pages does.
+AI generation has been completely removed from the app, UI, package and backend.
