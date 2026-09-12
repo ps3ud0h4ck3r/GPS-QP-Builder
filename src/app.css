@@ -29,8 +29,12 @@
 .question-break-after{break-after:page;page-break-after:always}
 .preview-options{margin-left:20px;margin-top:4px}
 .paper{width:210mm;min-height:297mm;max-width:none;padding:12mm;background:#fff;box-sizing:border-box}
-.paper-header{border-bottom:2px solid var(--burgundy);padding-bottom:8px}
-.school-name{color:#771e18}
-.meta-row{border-top:1.5px solid #771e18;border-bottom:1.5px solid #771e18}
+.paper-header{padding-bottom:8px}
+.paper,.paper *{color:#000!important}
+.paper-logo{filter:grayscale(1);}
+.meta-row{border-top:1.5px solid #000;border-bottom:1.5px solid #000}
+.instructions{border-color:#000}
+.preview-table td,.preview-table th,.question-table td,.question-table th{border-color:#000}
+.paper-end{color:#000}
 @media print{.paper{width:210mm;min-height:297mm;padding:12mm;page-break-after:always}.section-break-before{break-before:page;page-break-before:always}.question-break-after{break-after:page;page-break-after:always}}
 @media(max-width:640px){.paper{width:210mm;min-height:297mm}.blueprint-head{align-items:flex-start;flex-direction:column}}
