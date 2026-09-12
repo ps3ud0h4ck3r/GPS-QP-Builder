@@ -1,4 +1,4 @@
-const CACHE = "gps-qp-builder-v7";
+const CACHE = "gps-qp-builder-v8";
 const APP_SHELL = ["/", "/manifest.webmanifest"];
 
 self.addEventListener("install", event => {
