@@ -37,11 +37,8 @@
 .preview-table td,.preview-table th,.question-table td,.question-table th{border-color:#000}
 .paper-end{color:#000}
 @media print{.paper{width:210mm;min-height:297mm;padding:12mm;page-break-after:always}.section-break-before{break-before:page;page-break-before:always}.question-break-after{break-after:page;page-break-after:always}}
-@media(max-width:640px){.paper{width:210mm;min-height:297mm}.blueprint-head{align-items:flex-start;flex-direction:column}}
-
-.user-chip{font-size:11px;border:1px solid #ffffff55;padding:4px 7px;border-radius:99px;opacity:.9}.auth-screen{min-height:100vh;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:20px}.auth-card{width:min(390px,100%);background:var(--card);border:1.5px solid var(--border);border-radius:16px;padding:28px;box-shadow:0 15px 45px #0002;text-align:center}.auth-logo{width:150px;max-height:80px;object-fit:contain;margin-bottom:8px;filter:grayscale(1)}.auth-card h1{margin:4px 0;font-size:25px}.auth-card .field-label{text-align:left}.auth-error{background:#fef2f2;color:#b91c1c;border:1px solid #fecaca;padding:8px;border-radius:7px;margin-bottom:12px;font-size:12px;text-align:left}.modal-backdrop{position:fixed;inset:0;background:#0008;z-index:500;display:flex;align-items:flex-start;justify-content:center;padding:40px 16px;overflow:auto}.modal-card{width:min(620px,100%);background:var(--card);color:var(--text);border:1px solid var(--border);border-radius:14px;padding:20px;box-shadow:0 25px 70px #0005}.admin-modal{width:min(900px,100%)}.modal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}.modal-head h2{margin:0}.modal-card hr{border:0;border-top:1px solid var(--border);margin:18px 0}.modal-card h3{margin:8px 0 12px}.admin-user{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}.admin-user>div:first-child{flex:1}.icon-btn{background:none;border:0;color:var(--muted);cursor:pointer;font-size:16px;padding:2px 4px}
-/* Preview fit fix: keep the A4 paper inside the viewport on screen. Print remains true A4. */
-.paged-preview{width:100%;max-width:100%;overflow:hidden;box-sizing:border-box}
-.a4-page{width:100%;max-width:100%;min-width:0;overflow:hidden;box-sizing:border-box}
-.a4-page .paper{width:100%;max-width:100%;box-sizing:border-box}
-@media print{.paged-preview{overflow:visible!important}.a4-page{width:210mm!important;max-width:none!important;overflow:visible!important}.a4-page .paper{width:210mm!important;max-width:none!important}}
+/* Screen-only overflow guard. Print keeps the true A4 dimensions above. */
+html,body,#root{overflow-x:hidden!important}
+.paged-preview{width:100%;max-width:100%;overflow-x:hidden;box-sizing:border-box}
+.a4-page{max-width:100%;min-width:0;overflow-x:hidden;box-sizing:border-box}
+@media print{html,body,#root{overflow:visible!important}.paged-preview,.a4-page{overflow:visible!important;max-width:none!important}}
