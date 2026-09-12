@@ -3,8 +3,12 @@ html,body,#root,.app-shell,.page{max-width:100%;overflow-x:hidden!important}
 .paged-preview{width:100%!important;max-width:100%!important;overflow-x:hidden!important;box-sizing:border-box}
 .a4-page{width:100%!important;max-width:100%!important;min-width:0!important;overflow-x:hidden!important;box-sizing:border-box}
 .a4-page .paper{width:min(210mm,100%)!important;max-width:100%!important;min-width:0!important;box-sizing:border-box}
+/* The preview Card has an inline overflow:auto. This rule intentionally overrides it. */
+.preview-controls + .card{overflow:hidden!important;overflow-x:hidden!important;overflow-y:hidden!important}
+.preview-controls + .card > div{max-width:100%!important;overflow-x:hidden!important}
 @media print{
   html,body,#root,.app-shell,.page{overflow:visible!important;max-width:none!important}
   .paged-preview,.a4-page{overflow:visible!important;max-width:none!important;width:auto!important}
   .a4-page .paper{width:210mm!important;max-width:none!important;min-width:0!important}
+  .preview-controls + .card{overflow:visible!important}
 }
