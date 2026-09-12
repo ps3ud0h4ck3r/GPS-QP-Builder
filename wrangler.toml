@@ -1,5 +1,5 @@
 name = "gps-qp-builder"
-main = "worker/index.js"
+main = "worker/entry.js"
 compatibility_date = "2026-09-12"
 
 [assets]
