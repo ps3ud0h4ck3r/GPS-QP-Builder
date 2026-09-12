@@ -1,6 +1,11 @@
 name = "gps-qp-builder"
-pages_build_output_dir = "./dist"
+main = "worker/entry.js"
 compatibility_date = "2026-09-12"
+
+[assets]
+directory = "./dist"
+binding = "ASSETS"
+run_worker_first = true
 
 [[d1_databases]]
 binding = "DB"
