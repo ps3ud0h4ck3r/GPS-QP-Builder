@@ -1,11 +1,11 @@
 {
   "name": "gps-qp-builder",
   "private": true,
-  "version": "3.0.0",
+  "version": "3.0.1",
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "vite build && esbuild worker/entry.js --bundle --format=esm --outfile=dist/_worker.js",
     "preview": "vite preview"
   },
   "dependencies": {
@@ -16,5 +16,7 @@
     "react": "latest",
     "react-dom": "latest"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "esbuild": "latest"
+  }
 }
