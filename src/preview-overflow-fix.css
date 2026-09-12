@@ -5,10 +5,17 @@ html,body,#root,.app-shell,.page{max-width:100%;overflow-x:hidden!important}
 .a4-page .paper{width:min(210mm,100%)!important;max-width:100%!important;min-width:0!important;box-sizing:border-box}
 /* The preview Card has an inline overflow:auto. This rule intentionally overrides it. */
 .preview-controls + .card{overflow:hidden!important;overflow-x:hidden!important;overflow-y:hidden!important}
-.preview-controls + .card > div{max-width:100%!important;overflow-x:hidden!important}
+.preview-controls + .card > div{width:100%!important;max-width:100%!important;overflow-x:hidden!important;box-sizing:border-box}
+/* Mobile preview: show the full paper inside the phone instead of clipping the A4-width canvas. */
+@media(max-width:640px){
+  .preview-controls + .card > div .paper{width:100%!important;max-width:100%!important;min-width:0!important;min-height:auto!important;box-sizing:border-box!important;padding:20px 16px!important}
+  .preview-controls + .card > div .paper .paper-logo{max-width:100%!important}
+}
 @media print{
   html,body,#root,.app-shell,.page{overflow:visible!important;max-width:none!important}
   .paged-preview,.a4-page{overflow:visible!important;max-width:none!important;width:auto!important}
   .a4-page .paper{width:210mm!important;max-width:none!important;min-width:0!important}
   .preview-controls + .card{overflow:visible!important}
+  .preview-controls + .card > div{width:auto!important;max-width:none!important;overflow:visible!important}
+  .preview-controls + .card > div .paper{width:210mm!important;max-width:none!important;min-height:297mm!important;padding:12mm!important}
 }
