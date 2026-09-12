@@ -2,6 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App.jsx";
 import "./app.css";
+import "./auth-fix.css";
 
 // Keep the setup request explicitly marked so Cloudflare never treats the
 // POST like a static-asset navigation. The Worker accepts the same endpoint
