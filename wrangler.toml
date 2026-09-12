@@ -5,7 +5,7 @@ compatibility_date = "2026-09-12"
 [assets]
 directory = "./dist"
 binding = "ASSETS"
+run_worker_first = ["/api/*"]
 
-# Create a D1 database named gps-qp-builder in Cloudflare and bind it in
-# Workers & Pages as variable name DB. Keep the database ID in Cloudflare,
-# rather than committing it here.
+# The D1 binding is intentionally managed in Cloudflare until the database ID
+# is added to this source-controlled Wrangler configuration.
