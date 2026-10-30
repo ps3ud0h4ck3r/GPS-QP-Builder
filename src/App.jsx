@@ -242,6 +242,18 @@ function paginatePaperSections(sections,maxUnits=8){
 
 function BuilderApp({user,initialWorkspace,onWorkspaceChange,onLogout,onAccount,onAdmin}){
   const ws=initialWorkspace||{}; const [view,setView]=useState("build"); const [tourStep,setTourStep]=useState(null); const [header,setHeader]=useState({...DEFAULT_HEADER,...(ws.current?.header||{})}); const [sections,setSections]=useState(ws.current?.sections?.length?ws.current.sections:[makeSection()]); const [savedDrafts,setSavedDrafts]=useState(ws.drafts||[]); const [templates,setTemplates]=useState(ws.templates?.length?ws.templates:[]); const [draftName,setDraftName]=useState(""); const [showDraftPanel,setShowDraftPanel]=useState(false); const [showTemplates,setShowTemplates]=useState(false); const [showWizard,setShowWizard]=useState(false); const [wizardStep,setWizardStep]=useState(0); const [wizard,setWizard]=useState({classVal:DEFAULT_HEADER.classVal,subject:DEFAULT_HEADER.subject,exam:"Half Yearly Examination",maxMarks:"30",duration:"1.5 Hours",pattern:"balanced"}); const [recovery,setRecovery]=useState(null); const [lastSavedAt,setLastSavedAt]=useState(Date.now()); const [dark,setDark]=useState(!!ws.settings?.dark); const [printFont,setPrintFont]=useState(ws.settings?.printFont||"medium"); const [zoom,setZoom]=useState(ws.settings?.zoom||1); const [notice,setNotice]=useState(""); const [previewPage,setPreviewPage]=useState(0); const logoRef=useRef(); const previewRef=useRef();
+  const [commandOpen,setCommandOpen]=useState(false);
+  const [designOpen,setDesignOpen]=useState(false);
+  const [bankOpen,setBankOpen]=useState(false);
+  const [bankSearch,setBankSearch]=useState("");
+  const [focusMode,setFocusMode]=useState(false);
+  const [theme,setTheme]=useState(ws.settings?.theme||"gps");
+  const [zoomLevel,setZoomLevel]=useState(Number(ws.settings?.zoomLevel)||100);
+  const [questionBank,setQuestionBank]=useState(()=>{try{return JSON.parse(localStorage.getItem("gps_qp_question_bank")||"[]")}catch{return []}});
+  const [history,setHistory]=useState([]);
+  const [future,setFuture]=useState([]);
+  const historySkip=useRef(false);
+  const previousSnapshot=useRef(JSON.stringify({header,sections}));
   useEffect(()=>{document.documentElement.classList.toggle("dark",dark)},[dark]);
   useEffect(()=>{const h=e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==="k"){e.preventDefault();setCommandOpen(v=>!v)}if(e.key==="Escape"){setCommandOpen(false);setDesignOpen(false);setBankOpen(false)}};window.addEventListener("keydown",h);return()=>window.removeEventListener("keydown",h)},[]);
 
@@ -257,10 +269,59 @@ function BuilderApp({user,initialWorkspace,onWorkspaceChange,onLogout,onAccount,
     const snapshot={ts:Date.now(),header,sections}; setLastSavedAt(snapshot.ts);
     const key="gps_qp_autosave_"+String(user?.id||user?.username||"default");
     try{localStorage.setItem(key,JSON.stringify(snapshot));}catch{}
-    const t=setTimeout(()=>onWorkspaceChange({current:{header,sections,updatedAt:snapshot.ts},drafts:savedDrafts,templates,settings:{dark,printFont,zoom}}),700);
+    const t=setTimeout(()=>onWorkspaceChange({current:{header,sections,updatedAt:snapshot.ts},drafts:savedDrafts,templates,settings:{dark,printFont,zoom,theme,zoomLevel}}),700);
     return()=>clearTimeout(t)
-  },[header,sections,savedDrafts,templates,dark,printFont,zoom]);
+  },[header,sections,savedDrafts,templates,dark,printFont,zoom,theme,zoomLevel]);
   function notify(msg){setNotice(msg);window.clearTimeout(notify.t);notify.t=window.setTimeout(()=>setNotice(""),3500)}
+  function currentSnapshot(){return {header:clonePaper(header),sections:clonePaper(sections)}}
+  useEffect(()=>{
+    const next=JSON.stringify({header,sections});
+    if(previousSnapshot.current===next)return;
+    if(historySkip.current){historySkip.current=false;previousSnapshot.current=next;return;}
+    try{
+      const previous=JSON.parse(previousSnapshot.current);
+      setHistory(h=>[...h,previous].slice(-50));
+      setFuture([]);
+      previousSnapshot.current=next;
+    }catch{}
+  },[header,sections]);
+  useEffect(()=>{try{localStorage.setItem("gps_qp_question_bank",JSON.stringify(questionBank))}catch{}},[questionBank]);
+  function undo(){
+    if(!history.length)return;
+    const previous=history[history.length-1];
+    setHistory(h=>h.slice(0,-1));
+    setFuture(f=>[...f,currentSnapshot()].slice(-50));
+    historySkip.current=true;
+    setHeader(previous.header);
+    setSections(previous.sections);
+    notify("Undid the last change.");
+  }
+  function redo(){
+    if(!future.length)return;
+    const next=future[future.length-1];
+    setFuture(f=>f.slice(0,-1));
+    setHistory(h=>[...h,currentSnapshot()].slice(-50));
+    historySkip.current=true;
+    setHeader(next.header);
+    setSections(next.sections);
+    notify("Redid the change.");
+  }
+  function addToQuestionBank(q,section){
+    const item={id:uid(),question:clonePaper(q),typeId:section.typeId,subject:header.subject,classVal:header.classVal,marks:section.marksPerQ,ts:Date.now()};
+    setQuestionBank(bank=>[item,...bank.filter(x=>x.question?.text!==q.text)].slice(0,200));
+    notify("Question saved to Question Bank.");
+  }
+  function insertBankQuestion(item){
+    const targetIndex=sections.findIndex(s=>s.typeId===item.typeId);
+    if(targetIndex<0){notify("No compatible section exists. Create a section of the same question type first.");return;}
+    const target=sections[targetIndex];
+    const marks=Number(target.marksPerQ)||Number(item.marks)||1;
+    if(current+marks>max){notify("There is not enough space in the paper's marks limit for this question.");return;}
+    const copied={...clonePaper(item.question),id:uid()};
+    setSections(prev=>prev.map((s,i)=>i===targetIndex?{...s,questionCount:(Number(s.questionCount)||0)+1,questions:[...s.questions,copied]}:s));
+    setBankOpen(false);
+    notify("Question inserted from Question Bank.");
+  }
   const tourSteps=[
     {target:"tour-create",title:"Create Paper",text:"This is your main workspace. Start here whenever you want to create or edit a question paper."},
     {target:"tour-paper-details",title:"Paper Details",text:"Enter the paper's basic information here, such as class, subject, total marks, title, date, duration and language."},
@@ -387,7 +448,29 @@ function BuilderApp({user,initialWorkspace,onWorkspaceChange,onLogout,onAccount,
       {[["Create New Paper",()=>{setView("build");setCommandOpen(false)}],["My Papers",()=>{setShowDraftPanel(true);setCommandOpen(false)}],["Templates",()=>{setShowTemplates(true);setCommandOpen(false)}],["Full Preview",()=>{setView("preview");setCommandOpen(false)}],["Save Paper",()=>{saveDraft();setCommandOpen(false)}],["Export PDF",()=>{downloadPDF();setCommandOpen(false)}],["Export DOCX",()=>{downloadDOCX();setCommandOpen(false)}],["Question Bank",()=>{setBankOpen(true);setCommandOpen(false)}],["Undo",()=>{undo();setCommandOpen(false)}],["Redo",()=>{redo();setCommandOpen(false)}],["Design",()=>{setDesignOpen(true);setCommandOpen(false)}],["Focus Mode",()=>{setFocusMode(true);setCommandOpen(false)}]].map(([name,fn])=><button key={name} onClick={fn}><span>⌘</span>{name}<kbd>↵</kbd></button>)}</div><small>Esc to close · Ctrl/Cmd + K to open</small></div></div>}
     {designOpen&&<div className="feature-modal-backdrop" onClick={e=>{if(e.target===e.currentTarget)setDesignOpen(false)}}><div className="feature-modal design-modal"><div className="feature-modal-head"><div><h2>Paper & Workspace Design</h2><p>Personalize the builder without changing the printed paper.</p></div><button className="modal-close" onClick={()=>setDesignOpen(false)}>×</button></div><div className="design-group"><b>Workspace Theme</b><div className="theme-grid">{[["gps","GPS Burgundy"],["midnight","Midnight"],["slate","Slate"],["emerald","Emerald"]].map(([id,n])=><button className={theme===id?"theme-chip selected":"theme-chip"} onClick={()=>setTheme(id)} key={id}><span className={"theme-dot "+id}/>{n}</button>)}</div></div><div className="design-group"><b>Preview Zoom</b><div className="zoom-row"><button onClick={()=>setZoomLevel(z=>Math.max(70,z-10))}>−</button><strong>{zoomLevel}%</strong><button onClick={()=>setZoomLevel(z=>Math.min(150,z+10))}>+</button><button onClick={()=>setZoomLevel(100)}>Fit</button></div></div><div className="design-group"><b>Paper Typography</b><div className="theme-grid"><button className={printFont==="small"?"theme-chip selected":"theme-chip"} onClick={()=>setPrintFont("small")}>Compact</button><button className={printFont==="medium"?"theme-chip selected":"theme-chip"} onClick={()=>setPrintFont("medium")}>Standard</button><button className={printFont==="large"?"theme-chip selected":"theme-chip"} onClick={()=>setPrintFont("large")}>Spacious</button></div></div></div></div>}
     {bankOpen&&<div className="feature-modal-backdrop" onClick={e=>{if(e.target===e.currentTarget)setBankOpen(false)}}><div className="feature-modal feature-wide"><div className="feature-modal-head"><div><h2>Question Bank</h2><p>Store reusable questions and insert them into compatible sections.</p></div><button className="modal-close" onClick={()=>setBankOpen(false)}>×</button></div><input className="field-input" value={bankSearch} onChange={e=>setBankSearch(e.target.value)} placeholder="Search saved questions..."/><div className="bank-list">{questionBank.filter(x=>(x.question?.text||"").toLowerCase().includes(bankSearch.toLowerCase())||(x.subject||"").toLowerCase().includes(bankSearch.toLowerCase())).map(item=><div className="bank-item" key={item.id}><div><b dangerouslySetInnerHTML={{__html:item.question?.text||"Untitled question"}}/><small>{item.subject||"Subject"} · {item.classVal||"Class"} · {item.marks||0} mark(s)</small></div><Btn onClick={()=>insertBankQuestion(item)} small>Insert</Btn></div>)}{!questionBank.length&&<div className="empty-state"><div>▦</div><b>Your Question Bank is empty</b><span>Use the Bank button on a question to save reusable questions.</span></div>}</div></div></div>}
-    {focusMode&&<div className="focus-overlay"><header><b>GPS QP Builder · Focus Mode</b><div><Btn onClick={undo} variant="secondary" small disabled={!history.length}>↶</Btn><Btn onClick={redo} variant="secondary" small disabled={!future.length}>↷</Btn><Btn onClick={()=>setFocusMode(false)} small>Exit Focus</Btn></div></header><div className="focus-content"><div className="focus-paper-meta"><span>{header.classVal||"Class"} · {header.subject||"Subject"}</span><b>{sections.reduce((n,s)=>n+(Number(s.questionCount)||0),0)} Questions</b></div>{sections.flatMap(s=>s.questions.map((q,i)=>({q,s,i}))).map(({q,s,i})=><div className="focus-question" key={q.id}><span>Q{ i+1 } · {s.marksPerQ} mark(s)</span><RichTextEditor value={q.text} onChange={text=>{const si=sections.findIndex(x=>x.id===s.id);if(si>=0){const next=[...sections];next[si]={...next[si],questions:next[si].questions.map(x=>x.id===q.id?{...x,text}:x)};setSections(next)}}} placeholder="Write your question here"/></div>))}</div></div>}
+    {focusMode&&<div className="focus-overlay">
+      <header><b>GPS QP Builder · Focus Mode</b><div><Btn onClick={undo} variant="secondary" small disabled={!history.length}>↶</Btn><Btn onClick={redo} variant="secondary" small disabled={!future.length}>↷</Btn><Btn onClick={()=>setFocusMode(false)} small>Exit Focus</Btn></div></header>
+      <div className="focus-content">
+        <div className="focus-paper-meta"><span>{header.classVal||"Class"} · {header.subject||"Subject"}</span><b>{sections.reduce((n,s)=>n+(Number(s.questionCount)||0),0)} Questions</b></div>
+        {sections.flatMap((s)=>s.questions.map((q,i)=>({q,s,i}))).map(({q,s,i})=>(
+          <div className="focus-question" key={q.id}>
+            <span>Q{i+1} · {s.marksPerQ} mark(s)</span>
+            <RichTextEditor
+              value={q.text}
+              onChange={(text)=>{
+                const si=sections.findIndex(x=>x.id===s.id);
+                if(si>=0){
+                  const next=[...sections];
+                  next[si]={...next[si],questions:next[si].questions.map(x=>x.id===q.id?{...x,text}:x)};
+                  setSections(next);
+                }
+              }}
+              placeholder="Write your question here"
+            />
+          </div>
+        ))}
+      </div>
+    </div>}
 
     {recovery&&<div className="feature-modal-backdrop"><div className="feature-modal recovery-modal"><div className="feature-modal-icon">↻</div><h2>We recovered your latest work</h2><p>A local autosave is newer than the copy stored on the server. Would you like to restore it?</p><div className="feature-meta">Autosaved {new Date(recovery.ts).toLocaleString("en-IN")}</div><div className="feature-actions"><Btn onClick={discardRecovery} variant="secondary">Discard</Btn><Btn onClick={recoverLocal}>Recover Draft</Btn></div></div></div>}
     {showDraftPanel&&<div className="feature-modal-backdrop" onClick={e=>{if(e.target===e.currentTarget)setShowDraftPanel(false)}}><div className="feature-modal feature-wide"><div className="feature-modal-head"><div><h2>My Papers</h2><p>Save, reopen, duplicate and manage your question papers.</p></div><button className="modal-close" onClick={()=>setShowDraftPanel(false)}>×</button></div><div className="feature-save-row"><input className="field-input" value={draftName} onChange={e=>setDraftName(e.target.value)} placeholder="Paper name, e.g. Class VI Half Yearly"/><Btn onClick={saveDraft}>Save Current Paper</Btn><Btn onClick={saveTemplate} variant="secondary">Save as Template</Btn></div>{savedDrafts.length?<div className="paper-list">{savedDrafts.map(d=><div className="paper-list-item" key={d.ts}><div><b>{d.name}</b><small>{d.header?.classVal||"Class"} · {d.header?.subject||"Subject"} · {d.header?.maxMarks||0} marks · {new Date(d.ts).toLocaleDateString("en-IN")}</small></div><div className="paper-list-actions"><Btn onClick={()=>loadDraft(d)} small>Open</Btn><Btn onClick={()=>duplicateDraft(d)} variant="secondary" small>Duplicate</Btn><Btn onClick={()=>deleteDraft(d.ts)} variant="danger" small>Delete</Btn></div></div>)}</div>:<div className="empty-state"><div>▤</div><b>No saved papers yet</b><span>Save your current paper and it will appear here.</span></div>}</div></div>}
