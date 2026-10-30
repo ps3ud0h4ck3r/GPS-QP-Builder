@@ -36,7 +36,7 @@ const DEFAULT_HEADER = {
 function uid() { return Math.random().toString(36).slice(2, 10); }
 function makeQuestion(typeId) {
   const type = QUESTION_TYPES.find(t => t.id === typeId);
-  return { id: uid(), text: "", diagram: null, answerLines: 0, answerLineHeight: 60, options: type.hasOptions ? Array.from({length:type.hasOptions}, () => "") : null,
+  return { id: uid(), text: "", diagram: null, answerLines: 0, answerLineHeight: 40, options: type.hasOptions ? Array.from({length:type.hasOptions}, () => "") : null,
     matchLeft: typeId === "match" ? ["","","","",""] : null, matchRight: typeId === "match" ? ["","","","",""] : null };
 }
 function makeSection() {
@@ -133,7 +133,7 @@ function QuestionEditor({ q,index,typeId,onChange,showDiagram,onMoveUp,onMoveDow
     {showDiagram && type.hasDiagram && <div style={{marginTop:8}}>{!showDiag&&!q.diagram?<button className="link-btn" onClick={()=>setShowDiag(true)}>+ Add Diagram</button>:<DiagramPicker diagram={q.diagram} onChange={d=>{upd({diagram:d});if(!d)setShowDiag(false)}}/>}</div>}
     {junior&&<div className="junior-answer-controls">
       <label className="check-row"><input type="checkbox" checked={Number(q.answerLines||0)>0} onChange={e=>upd({answerLines:e.target.checked?3:0})}/> Add Lines for Student Answer</label>
-      {Number(q.answerLines||0)>0&&<><label className="field-label" style={{display:"inline-flex",alignItems:"center",gap:8,marginLeft:24}}>Number of Lines <select value={q.answerLines} onChange={e=>upd({answerLines:Math.max(1,Math.min(12,parseInt(e.target.value)||1))})} className="field-input compact" style={{width:90,marginBottom:0}}>{Array.from({length:12},(_,i)=><option key={i+1} value={i+1}>{i+1}</option>)}</select></label><label className="field-label" style={{display:"inline-flex",alignItems:"center",gap:8,marginLeft:24}}>Line Height (px) <input type="number" min="1" step="1" value={Number(q.answerLineHeight||60)} onChange={e=>upd({answerLineHeight:Math.max(1,parseInt(e.target.value)||1)})} className="field-input compact" style={{width:100,marginBottom:0}}/></label></>}
+      {Number(q.answerLines||0)>0&&<><label className="field-label" style={{display:"inline-flex",alignItems:"center",gap:8,marginLeft:24}}>Number of Lines <select value={q.answerLines} onChange={e=>upd({answerLines:Math.max(1,Math.min(12,parseInt(e.target.value)||1))})} className="field-input compact" style={{width:90,marginBottom:0}}>{Array.from({length:12},(_,i)=><option key={i+1} value={i+1}>{i+1}</option>)}</select></label><label className="field-label" style={{display:"inline-flex",alignItems:"center",gap:8,marginLeft:24}}>Line Height (px) <input type="number" min="1" step="1" value={Number(q.answerLineHeight||40)} onChange={e=>upd({answerLineHeight:Math.max(1,parseInt(e.target.value)||1)})} className="field-input compact" style={{width:100,marginBottom:0}}/></label></>}
     </div>}
     <label className="check-row"><input type="checkbox" checked={!!q.pageBreakAfter} onChange={e=>upd({pageBreakAfter:e.target.checked})}/> Start a new A4 page after this question</label>
   </div>;
