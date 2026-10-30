@@ -413,7 +413,7 @@ function BuilderApp({user,initialWorkspace,onWorkspaceChange,onLogout,onAccount,
     <header className="full-preview-header">
       <div className="full-preview-heading"><div className="full-preview-icon">GPS</div><div><h1>Full Paper Preview</h1><p>Page {previewPage+1} of {previewPages.length} · Review the complete A4 paper before exporting</p></div></div>
       <div className="full-preview-actions">
-        <Btn onClick={()=>setView("build")} variant="secondary"><Icon icon={ArrowRight} style={{transform:"rotate(180deg)"}}/> Back to Builder</Btn>
+        <Btn onClick={()=>setView("build")} variant="secondary"><Icon icon={ChevronLeft}/> Back to Builder</Btn>
         <Btn onClick={()=>setPreviewPage(p=>Math.max(0,p-1))} variant="secondary" disabled={previewPage===0}><Icon icon={ChevronLeft}/> Page</Btn>
         <Btn onClick={()=>setPreviewPage(p=>Math.min(previewPages.length-1,p+1))} variant="secondary" disabled={previewPage===previewPages.length-1}>Page <Icon icon={ChevronRight}/></Btn>
         <Btn onClick={downloadPDF}><Icon icon={FileDown}/> Export PDF</Btn><Btn onClick={downloadDOCX} variant="secondary"><Icon icon={FileDown}/> Export DOCX</Btn><Btn onClick={()=>window.print()} variant="secondary"><Icon icon={Printer}/> Print</Btn>
