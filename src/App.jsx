@@ -241,9 +241,23 @@ function paginatePaperSections(sections,maxUnits=8){
 }
 
 function BuilderApp({user,initialWorkspace,onWorkspaceChange,onLogout,onAccount,onAdmin}){
-  const ws=initialWorkspace||{}; const [view,setView]=useState("build"); const [tourStep,setTourStep]=useState(null); const [header,setHeader]=useState({...DEFAULT_HEADER,...(ws.current?.header||{})}); const [sections,setSections]=useState(ws.current?.sections?.length?ws.current.sections:[makeSection()]); const [savedDrafts,setSavedDrafts]=useState(ws.drafts||[]); const [draftName,setDraftName]=useState(""); const [showDraftPanel,setShowDraftPanel]=useState(false); const [dark,setDark]=useState(!!ws.settings?.dark); const [printFont,setPrintFont]=useState(ws.settings?.printFont||"medium"); const [zoom,setZoom]=useState(ws.settings?.zoom||1); const [notice,setNotice]=useState(""); const logoRef=useRef(); const previewRef=useRef();
+  const ws=initialWorkspace||{}; const [view,setView]=useState("build"); const [tourStep,setTourStep]=useState(null); const [header,setHeader]=useState({...DEFAULT_HEADER,...(ws.current?.header||{})}); const [sections,setSections]=useState(ws.current?.sections?.length?ws.current.sections:[makeSection()]); const [savedDrafts,setSavedDrafts]=useState(ws.drafts||[]); const [templates,setTemplates]=useState(ws.templates?.length?ws.templates:[]); const [draftName,setDraftName]=useState(""); const [showDraftPanel,setShowDraftPanel]=useState(false); const [showTemplates,setShowTemplates]=useState(false); const [showWizard,setShowWizard]=useState(false); const [wizardStep,setWizardStep]=useState(0); const [wizard,setWizard]=useState({classVal:DEFAULT_HEADER.classVal,subject:DEFAULT_HEADER.subject,exam:"Half Yearly Examination",maxMarks:"30",duration:"1.5 Hours",pattern:"balanced"}); const [recovery,setRecovery]=useState(null); const [lastSavedAt,setLastSavedAt]=useState(Date.now()); const [dark,setDark]=useState(!!ws.settings?.dark); const [printFont,setPrintFont]=useState(ws.settings?.printFont||"medium"); const [zoom,setZoom]=useState(ws.settings?.zoom||1); const [notice,setNotice]=useState(""); const [previewPage,setPreviewPage]=useState(0); const logoRef=useRef(); const previewRef=useRef();
   useEffect(()=>{document.documentElement.classList.toggle("dark",dark)},[dark]);
-  useEffect(()=>{const t=setTimeout(()=>onWorkspaceChange({current:{header,sections},drafts:savedDrafts,templates:ws.templates||[],settings:{dark,printFont,zoom}}),500);return()=>clearTimeout(t)},[header,sections,savedDrafts,dark,printFont,zoom]);
+  useEffect(()=>{
+    const key="gps_qp_autosave_"+String(user?.id||user?.username||"default");
+    try{
+      const raw=localStorage.getItem(key); const local=raw?JSON.parse(raw):null;
+      const serverTs=Number(ws.current?.updatedAt||0);
+      if(local&&Number(local.ts||0)>serverTs+1500) setRecovery(local);
+    }catch{}
+  },[]);
+  useEffect(()=>{
+    const snapshot={ts:Date.now(),header,sections}; setLastSavedAt(snapshot.ts);
+    const key="gps_qp_autosave_"+String(user?.id||user?.username||"default");
+    try{localStorage.setItem(key,JSON.stringify(snapshot));}catch{}
+    const t=setTimeout(()=>onWorkspaceChange({current:{header,sections,updatedAt:snapshot.ts},drafts:savedDrafts,templates,settings:{dark,printFont,zoom}}),700);
+    return()=>clearTimeout(t)
+  },[header,sections,savedDrafts,templates,dark,printFont,zoom]);
   function notify(msg){setNotice(msg);window.clearTimeout(notify.t);notify.t=window.setTimeout(()=>setNotice(""),3500)}
   const tourSteps=[
     {target:"tour-create",title:"Create Paper",text:"This is your main workspace. Start here whenever you want to create or edit a question paper."},
