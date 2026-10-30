@@ -305,3 +305,65 @@ html,body,#root{
 @media print{
   .card{box-shadow:none!important}
 }
+
+
+/* GPS QP Builder premium command-center UI */
+:root{
+  --glass:rgba(255,255,255,.62);
+  --glass-strong:rgba(255,255,255,.82);
+  --glass-border:rgba(119,30,24,.14);
+  --glass-shadow:0 18px 55px rgba(81,20,15,.10);
+  --ui-radius:18px;
+}
+body{
+  background:
+    radial-gradient(circle at 7% 8%,rgba(198,161,91,.17),transparent 28%),
+    radial-gradient(circle at 94% 24%,rgba(119,30,24,.10),transparent 30%),
+    linear-gradient(135deg,#fffaf7 0%,#f8f0ec 52%,#f7f1e8 100%);
+}
+.app-shell{background:transparent!important;}
+.topbar{
+  height:72px!important;
+  padding:0 28px!important;
+  border-bottom:1px solid rgba(255,255,255,.14);
+  box-shadow:0 10px 35px rgba(75,20,15,.16)!important;
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+}
+.brand{gap:10px!important}.brand strong{font-size:18px!important;letter-spacing:-.02em}.user-chip{font-size:11px!important}
+.top-actions{gap:7px!important}.top-actions button{padding:8px 12px!important;border-radius:10px!important;border-color:rgba(255,255,255,.14)!important}
+.top-actions button:hover{background:rgba(255,255,255,.09)!important;color:#fff!important}.top-actions button.active{box-shadow:0 7px 18px rgba(198,161,91,.28)!important}
+.page{max-width:1260px!important;padding:32px 24px 70px!important;margin:0 auto!important}
+.page:before{content:"";display:block;height:6px;width:86px;border-radius:99px;background:linear-gradient(90deg,var(--gold),var(--burgundy));margin:0 auto 22px;opacity:.75}
+.card,.draft-panel{
+  background:var(--glass)!important;
+  border:1px solid var(--glass-border)!important;
+  border-radius:var(--ui-radius)!important;
+  box-shadow:var(--glass-shadow)!important;
+  backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+}
+.card{padding:24px!important;margin-bottom:18px!important}
+.card-title,.panel-title{font-size:18px!important;color:var(--burgundy)!important;display:flex;align-items:center;gap:9px}.card-title:before{content:"";width:9px;height:9px;border-radius:50%;background:var(--gold);box-shadow:0 0 0 5px rgba(198,161,91,.14)}
+.qp-header-grid{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:13px!important}.qp-header-grid>div:nth-child(1),.qp-header-grid>div:nth-child(3),.qp-header-grid>div:nth-child(5),.qp-header-grid>div:nth-child(6){grid-column:span 2}
+.field-label{font-size:10px!important;letter-spacing:.08em!important;color:#7b625d!important}.field-input{min-height:42px!important;border-radius:11px!important;border:1px solid rgba(119,30,24,.12)!important;background:rgba(255,255,255,.68)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.7)}.field-input:focus{border-color:rgba(119,30,24,.4)!important;box-shadow:0 0 0 4px rgba(119,30,24,.07)!important}
+.btn{min-height:40px;border-radius:11px!important;box-shadow:0 7px 18px rgba(70,20,15,.06)}.btn-primary{background:linear-gradient(135deg,var(--burgundy),#8f2c24)!important}.btn-primary:hover{transform:translateY(-1px)}.btn-secondary{background:rgba(255,255,255,.72)!important}.btn-danger{border-radius:10px!important}
+.qp-section-grid{grid-template-columns:2fr 1fr 1fr!important;gap:13px!important}
+.blueprint-card{background:rgba(255,255,255,.55)!important}.blueprint-table th{background:rgba(119,30,24,.07)!important}.blueprint-table tfoot td{background:rgba(198,161,91,.10)!important}
+.marks-summary{border-radius:14px!important;background:rgba(244,252,246,.75)!important}
+.section-card{overflow:hidden}.section-head{padding-bottom:15px}.section-title{font-size:15px!important}.section-card .section-head .badge{box-shadow:0 5px 12px rgba(0,0,0,.04)}
+.question-editor{background:rgba(255,255,255,.46)!important;border:1px solid rgba(119,30,24,.10)!important;border-radius:14px!important;padding:16px!important;box-shadow:inset 0 1px rgba(255,255,255,.55)}
+.question-editor-head{padding-bottom:5px}.drag-handle{opacity:.6}.rich-wrap{border-radius:12px!important;background:rgba(255,255,255,.72)!important}.rich-toolbar{padding:7px!important;background:rgba(119,30,24,.045)!important}.rich-toolbar button,.rich-toolbar select{border-radius:7px!important}.rich-toolbar button:hover{background:rgba(198,161,91,.18)!important}.rich-editor{min-height:80px!important;padding:12px!important}
+.junior-answer-controls{background:rgba(198,161,91,.10)!important;border-radius:13px!important;border-color:rgba(198,161,91,.26)!important}
+.preview-controls{position:sticky;top:84px;z-index:40;padding:11px 13px;border:1px solid var(--glass-border);background:rgba(255,255,255,.76);border-radius:15px;box-shadow:0 12px 28px rgba(75,20,15,.08);backdrop-filter:blur(18px)}
+.preview-controls .btn{min-height:36px}.preview-controls .toolbar-row{gap:6px}
+.add-section{border:1.5px dashed rgba(119,30,24,.25)!important;border-radius:14px!important;background:rgba(255,255,255,.42)!important;min-height:54px!important;color:var(--burgundy)!important}.add-section:hover{background:rgba(198,161,91,.12)!important;border-color:var(--gold)!important}
+.draft-panel{border-radius:0!important;border-left:0!important;border-right:0!important}
+.toast{border-radius:12px!important;background:rgba(55,19,16,.92)!important;backdrop-filter:blur(14px)}
+.auth-screen{background:
+  radial-gradient(circle at 20% 15%,rgba(198,161,91,.22),transparent 30%),
+  radial-gradient(circle at 80% 80%,rgba(119,30,24,.14),transparent 32%),
+  linear-gradient(135deg,#fffaf7,#f4e9e2)!important}
+.auth-card{width:min(440px,100%)!important;padding:34px!important}.auth-card h1{font-size:29px!important;color:var(--burgundy)!important}.auth-card .btn{margin-top:4px}
+.modal-card{max-height:calc(100vh - 80px);overflow:auto}
+@media(max-width:1000px){.qp-header-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}.qp-header-grid>div{grid-column:auto!important}.qp-section-grid{grid-template-columns:1fr 1fr!important}.page{max-width:960px!important}}
+@media(max-width:700px){.topbar{height:auto!important;min-height:64px!important}.page{padding:22px 12px 48px!important}.card{padding:18px!important}.qp-header-grid,.qp-section-grid,.two-col{grid-template-columns:1fr!important}.preview-controls{position:static}.brand strong{font-size:16px!important}.top-actions{width:100%;overflow:auto;padding-bottom:2px}.top-actions button{flex:0 0 auto}.page:before{margin-bottom:16px}}
+@media print{body{background:#fff!important}.page:before{display:none}.card{background:#fff!important;border:0!important;box-shadow:none!important}.preview-controls{box-shadow:none!important}}
