@@ -323,6 +323,7 @@ function BuilderApp({user,initialWorkspace,onWorkspaceChange,onLogout,onAccount,
   function handleLogo(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>setHeader(h=>({...h,logoUrl:ev.target.result}));r.readAsDataURL(f)}
   function newPaper(){if(!confirm("Start a new paper? Unsaved changes on this screen will be lost."))return;setHeader(DEFAULT_HEADER);setSections([makeSection()]);setView("build");setShowDraftPanel(false);window.scrollTo({top:0,behavior:"smooth"})}
   const previewHTML=useMemo(()=>buildPreviewHTML(header,sections,PRINT_FONTS[printFont],zoom),[header,sections,printFont,zoom]);
+  const previewPages=useMemo(()=>paginatePaperSections(sections,8).map(page=>buildPreviewHTML(header,page,PRINT_FONTS[printFont],1)),[header,sections,printFont]);
   function filename(ext){const clean=v=>String(v||"Unknown").trim().replace(/[^a-z0-9]+/gi,"-").replace(/^-+|-+$/g,"");return `GPS-${clean(header.classVal||"Class")}-${clean(header.subject||"Subject")}.${ext}`}
   async function pdfBlob(){const holder=document.createElement("div");holder.style.position="fixed";holder.style.left="-100000px";holder.style.top="0";holder.style.width="680px";holder.innerHTML=buildPreviewHTML(header,sections,PRINT_FONTS[printFont],1);document.body.appendChild(holder);try{return await html2pdf().set({margin:0,image:{type:"jpeg",quality:.98},html2canvas:{scale:2,useCORS:true,backgroundColor:"#fff"},jsPDF:{unit:"mm",format:"a4",orientation:"portrait"},pagebreak:{mode:["css","legacy"]}}).from(holder.firstElementChild).outputPdf("blob")}finally{holder.remove()}}
   async function downloadPDF(){const blob=await pdfBlob();const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=filename("pdf");a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
@@ -331,11 +332,25 @@ function BuilderApp({user,initialWorkspace,onWorkspaceChange,onLogout,onAccount,
 
   if(view==="preview") return <div className="full-preview-screen">
     <header className="full-preview-header">
-      <div className="full-preview-heading"><div className="full-preview-icon">GPS</div><div><h1>Full Paper Preview</h1><p>Review the complete A4 paper before exporting</p></div></div>
-      <div className="full-preview-actions"><Btn onClick={()=>setView("build")} variant="secondary">← Back to Builder</Btn><Btn onClick={downloadPDF}>Export PDF</Btn><Btn onClick={downloadDOCX} variant="secondary">Export DOCX</Btn><Btn onClick={()=>window.print()} variant="secondary">Print</Btn></div>
+      <div className="full-preview-heading"><div className="full-preview-icon">GPS</div><div><h1>Full Paper Preview</h1><p>Page ${previewPage+1} of ${previewPages.length} · Review the complete A4 paper before exporting</p></div></div>
+      <div className="full-preview-actions">
+        <Btn onClick={()=>setView("build")} variant="secondary">← Back to Builder</Btn>
+        <Btn onClick={()=>setPreviewPage(p=>Math.max(0,p-1))} variant="secondary" disabled={previewPage===0}>← Page</Btn>
+        <Btn onClick={()=>setPreviewPage(p=>Math.min(previewPages.length-1,p+1))} variant="secondary" disabled={previewPage===previewPages.length-1}>Page →</Btn>
+        <Btn onClick={downloadPDF}>Export PDF</Btn><Btn onClick={downloadDOCX} variant="secondary">Export DOCX</Btn><Btn onClick={()=>window.print()} variant="secondary">Print</Btn>
+      </div>
     </header>
-    <main className="full-preview-canvas"><div className="full-preview-paper"><div dangerouslySetInnerHTML={{__html:previewHTML}}/></div></main>
-  </div>;
+    <div className="full-preview-body">
+      <aside className="preview-page-strip">
+        <div className="preview-strip-title">PAGES</div>
+        {previewPages.map((html,i)=><button key={i} className={i===previewPage?"preview-thumb active":"preview-thumb"} onClick={()=>setPreviewPage(i)}><span>PAGE {i+1}</span><div dangerouslySetInnerHTML={{__html:html}}/></button>)}
+      </aside>
+      <main className="full-preview-canvas">
+        <div className="full-preview-page-label">PAGE ${previewPage+1} / ${previewPages.length}</div>
+        <div className="full-preview-paper"><div dangerouslySetInnerHTML={{__html:previewPages[previewPage]||previewHTML}}/></div>
+      </main>
+    </div>
+  </div>
 
   return <div className="app-shell command-shell">
     {notice&&<div className="toast">{notice}</div>}
