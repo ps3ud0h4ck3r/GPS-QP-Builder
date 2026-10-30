@@ -295,8 +295,14 @@ function BuilderApp({user,initialWorkspace,onWorkspaceChange,onLogout,onAccount,
     setTemplates(t=>[template,...t.filter(x=>x.name!==name)].slice(0,20)); setDraftName(""); setShowTemplates(true); notify("Template saved: "+name);
   }
   function applyTemplate(template){
-    const paper=templateToPaper(template,{...header,school:header.school,location:header.location,session:header.session,subject:header.subject,classVal:header.classVal});
-    setHeader(paper.header); setSections(paper.sections); setShowTemplates(false); setView("build"); setPreviewPage(0); notify("Template applied.");
+    if(template.sections){
+      setHeader({...clonePaper(template.header||header),school:header.school,location:header.location,session:header.session,classVal:header.classVal,subject:header.subject});
+      setSections(clonePaper(template.sections).map(sec=>({...sec,id:uid(),questions:(sec.questions||[]).map(q=>({...q,id:uid()}))})));
+    }else{
+      const paper=templateToPaper(template,{...header,school:header.school,location:header.location,session:header.session,subject:header.subject,classVal:header.classVal});
+      setHeader(paper.header); setSections(paper.sections);
+    }
+    setShowTemplates(false); setView("build"); setPreviewPage(0); notify("Template applied.");
   }
   function deleteTemplate(id){setTemplates(t=>t.filter(x=>x.id!==id))}
   function duplicateDraft(d){
