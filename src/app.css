@@ -891,3 +891,188 @@ html.dark,html.dark body,html.dark #root{background:var(--ui-bg)!important;color
   .preview-thumb{flex:0 0 92px!important;margin:0!important}
   .full-preview-canvas{padding:12px!important}
 }
+
+
+/* =========================================================
+   Restrained glass layer
+   Glass is reserved for navigation and floating surfaces.
+   Core editing surfaces remain solid for readability.
+   ========================================================= */
+:root{
+  --glass-bg:rgba(255,255,255,.72);
+  --glass-bg-strong:rgba(255,255,255,.84);
+  --glass-border:rgba(255,255,255,.68);
+  --glass-shadow:0 12px 34px rgba(25,29,36,.08);
+  --glass-blur:18px;
+}
+.command-topbar{
+  background:var(--glass-bg)!important;
+  border-bottom:1px solid rgba(214,218,225,.72)!important;
+  box-shadow:0 8px 26px rgba(25,29,36,.045)!important;
+  backdrop-filter:blur(var(--glass-blur)) saturate(135%)!important;
+  -webkit-backdrop-filter:blur(var(--glass-blur)) saturate(135%)!important;
+}
+.command-sidebar{
+  background:rgba(250,251,252,.68)!important;
+  backdrop-filter:blur(14px) saturate(125%)!important;
+  -webkit-backdrop-filter:blur(14px) saturate(125%)!important;
+}
+.command-preview{
+  background:rgba(250,251,252,.68)!important;
+  backdrop-filter:blur(14px) saturate(125%)!important;
+  -webkit-backdrop-filter:blur(14px) saturate(125%)!important;
+}
+.command-user{
+  background:rgba(255,255,255,.34)!important;
+  border-color:rgba(255,255,255,.46)!important;
+  backdrop-filter:blur(10px)!important;
+  -webkit-backdrop-filter:blur(10px)!important;
+}
+.command-user:hover{background:rgba(255,255,255,.64)!important}
+.command-icon{
+  background:rgba(255,255,255,.62)!important;
+  border-color:rgba(255,255,255,.82)!important;
+  box-shadow:0 4px 16px rgba(25,29,36,.055)!important;
+  backdrop-filter:blur(10px)!important;
+  -webkit-backdrop-filter:blur(10px)!important;
+}
+.command-step.active{
+  background:rgba(245,233,236,.72)!important;
+  border:1px solid rgba(255,255,255,.74)!important;
+  box-shadow:0 4px 16px rgba(122,31,43,.06)!important;
+  backdrop-filter:blur(10px)!important;
+  -webkit-backdrop-filter:blur(10px)!important;
+}
+.command-help{
+  background:rgba(255,255,255,.42)!important;
+  border-color:rgba(255,255,255,.76)!important;
+  box-shadow:0 6px 20px rgba(25,29,36,.04)!important;
+  backdrop-filter:blur(12px)!important;
+  -webkit-backdrop-filter:blur(12px)!important;
+}
+.command-preview-head{
+  background:rgba(255,255,255,.34)!important;
+  border-radius:10px!important;
+  padding:9px!important;
+  margin-bottom:4px!important;
+  border:1px solid rgba(255,255,255,.56)!important;
+  backdrop-filter:blur(12px)!important;
+  -webkit-backdrop-filter:blur(12px)!important;
+}
+.command-preview-tabs button.active{
+  background:rgba(255,255,255,.66)!important;
+  border:1px solid rgba(255,255,255,.72)!important;
+  box-shadow:0 3px 12px rgba(25,29,36,.045)!important;
+  backdrop-filter:blur(10px)!important;
+  -webkit-backdrop-filter:blur(10px)!important;
+}
+.preview-controls{
+  background:rgba(255,255,255,.64)!important;
+  border-color:rgba(255,255,255,.82)!important;
+  box-shadow:0 8px 24px rgba(25,29,36,.06)!important;
+  backdrop-filter:blur(14px)!important;
+  -webkit-backdrop-filter:blur(14px)!important;
+}
+.feature-modal-backdrop,.modal-backdrop{
+  background:rgba(17,20,24,.30)!important;
+  backdrop-filter:blur(7px)!important;
+  -webkit-backdrop-filter:blur(7px)!important;
+}
+.feature-modal,.modal-card,.command-palette{
+  background:var(--glass-bg-strong)!important;
+  border-color:var(--glass-border)!important;
+  box-shadow:0 22px 60px rgba(20,24,31,.14)!important;
+  backdrop-filter:blur(22px) saturate(130%)!important;
+  -webkit-backdrop-filter:blur(22px) saturate(130%)!important;
+}
+.palette-search{
+  background:rgba(255,255,255,.42)!important;
+  border-bottom-color:rgba(255,255,255,.60)!important;
+}
+.bank-item{
+  background:rgba(255,255,255,.52)!important;
+  border-color:rgba(255,255,255,.72)!important;
+}
+.bank-item:hover{background:rgba(255,255,255,.74)!important}
+.toast{
+  background:rgba(23,25,29,.84)!important;
+  border:1px solid rgba(255,255,255,.12)!important;
+  backdrop-filter:blur(16px)!important;
+  -webkit-backdrop-filter:blur(16px)!important;
+}
+.theme-chip.selected{
+  background:rgba(122,31,43,.09)!important;
+  border-color:rgba(122,31,43,.22)!important;
+  box-shadow:0 4px 16px rgba(122,31,43,.055)!important;
+}
+.full-preview-header{
+  background:rgba(255,255,255,.76)!important;
+  backdrop-filter:blur(18px) saturate(130%)!important;
+  -webkit-backdrop-filter:blur(18px) saturate(130%)!important;
+  box-shadow:0 7px 24px rgba(25,29,36,.045)!important;
+}
+.preview-page-strip{
+  background:rgba(241,243,245,.72)!important;
+  backdrop-filter:blur(12px)!important;
+  -webkit-backdrop-filter:blur(12px)!important;
+}
+
+/* Dark glass */
+:root.dark{
+  --glass-bg:rgba(21,25,31,.72);
+  --glass-bg-strong:rgba(21,25,31,.86);
+  --glass-border:rgba(255,255,255,.10);
+}
+.dark .command-topbar{
+  background:var(--glass-bg)!important;
+  border-bottom-color:rgba(255,255,255,.08)!important;
+}
+.dark .command-sidebar,.dark .command-preview{
+  background:rgba(16,20,25,.72)!important;
+  border-color:rgba(255,255,255,.07)!important;
+}
+.dark .command-user,.dark .command-icon,.dark .command-help,.dark .command-preview-head{
+  background:rgba(255,255,255,.045)!important;
+  border-color:rgba(255,255,255,.08)!important;
+}
+.dark .command-step.active{
+  background:rgba(208,106,120,.13)!important;
+  border-color:rgba(208,106,120,.18)!important;
+}
+.dark .command-preview-tabs button.active,.dark .preview-controls{
+  background:rgba(255,255,255,.07)!important;
+  border-color:rgba(255,255,255,.10)!important;
+}
+.dark .feature-modal,.dark .modal-card,.dark .command-palette{
+  background:var(--glass-bg-strong)!important;
+  border-color:rgba(255,255,255,.10)!important;
+}
+.dark .palette-search,.dark .bank-item{
+  background:rgba(255,255,255,.045)!important;
+  border-color:rgba(255,255,255,.08)!important;
+}
+.dark .full-preview-header{
+  background:rgba(21,25,31,.78)!important;
+  border-color:rgba(255,255,255,.08)!important;
+}
+.dark .preview-page-strip{
+  background:rgba(17,21,26,.72)!important;
+}
+
+/* Keep the actual editing canvas solid */
+.question-editor,.section-card,.marks-summary,.field-input,.rich-wrap,.full-preview-paper{
+  backdrop-filter:none!important;
+  -webkit-backdrop-filter:none!important;
+}
+
+/* Mobile keeps glass light and performant */
+@media(max-width:820px){
+  .command-topbar{backdrop-filter:blur(12px)!important;-webkit-backdrop-filter:blur(12px)!important}
+  .command-sidebar{backdrop-filter:blur(10px)!important;-webkit-backdrop-filter:blur(10px)!important}
+}
+@media(prefers-reduced-transparency:reduce){
+  .command-topbar,.command-sidebar,.command-preview,.command-user,.command-icon,.command-help,.command-preview-head,
+  .preview-controls,.feature-modal,.modal-card,.command-palette,.full-preview-header,.preview-page-strip{
+    backdrop-filter:none!important;-webkit-backdrop-filter:none!important;background:var(--ui-surface)!important;
+  }
+}
