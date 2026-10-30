@@ -332,7 +332,7 @@ function BuilderApp({user,initialWorkspace,onWorkspaceChange,onLogout,onAccount,
 
   if(view==="preview") return <div className="full-preview-screen">
     <header className="full-preview-header">
-      <div className="full-preview-heading"><div className="full-preview-icon">GPS</div><div><h1>Full Paper Preview</h1><p>Page ${previewPage+1} of ${previewPages.length} · Review the complete A4 paper before exporting</p></div></div>
+      <div className="full-preview-heading"><div className="full-preview-icon">GPS</div><div><h1>Full Paper Preview</h1><p>Page {previewPage+1} of {previewPages.length} · Review the complete A4 paper before exporting</p></div></div>
       <div className="full-preview-actions">
         <Btn onClick={()=>setView("build")} variant="secondary">← Back to Builder</Btn>
         <Btn onClick={()=>setPreviewPage(p=>Math.max(0,p-1))} variant="secondary" disabled={previewPage===0}>← Page</Btn>
@@ -346,7 +346,7 @@ function BuilderApp({user,initialWorkspace,onWorkspaceChange,onLogout,onAccount,
         {previewPages.map((html,i)=><button key={i} className={i===previewPage?"preview-thumb active":"preview-thumb"} onClick={()=>setPreviewPage(i)}><span>PAGE {i+1}</span><div dangerouslySetInnerHTML={{__html:html}}/></button>)}
       </aside>
       <main className="full-preview-canvas">
-        <div className="full-preview-page-label">PAGE ${previewPage+1} / ${previewPages.length}</div>
+        <div className="full-preview-page-label">PAGE {previewPage+1} / {previewPages.length}</div>
         <div className="full-preview-paper"><div dangerouslySetInnerHTML={{__html:previewPages[previewPage]||previewHTML}}/></div>
       </main>
     </div>
