@@ -413,9 +413,9 @@ function BuilderApp({user,initialWorkspace,onWorkspaceChange,onLogout,onAccount,
     <header className="full-preview-header">
       <div className="full-preview-heading"><div className="full-preview-icon">GPS</div><div><h1>Full Paper Preview</h1><p>Page {previewPage+1} of {previewPages.length} · Review the complete A4 paper before exporting</p></div></div>
       <div className="full-preview-actions">
-        <Btn onClick={()=>setView("build")} variant="secondary">← Back to Builder</Btn>
-        <Btn onClick={()=>setPreviewPage(p=>Math.max(0,p-1))} variant="secondary" disabled={previewPage===0}>← Page</Btn>
-        <Btn onClick={()=>setPreviewPage(p=>Math.min(previewPages.length-1,p+1))} variant="secondary" disabled={previewPage===previewPages.length-1}>Page →</Btn>
+        <Btn onClick={()=>setView("build")} variant="secondary"><Icon icon={ArrowRight} style={{transform:"rotate(180deg)"}}/> Back to Builder</Btn>
+        <Btn onClick={()=>setPreviewPage(p=>Math.max(0,p-1))} variant="secondary" disabled={previewPage===0}><Icon icon={ChevronLeft}/> Page</Btn>
+        <Btn onClick={()=>setPreviewPage(p=>Math.min(previewPages.length-1,p+1))} variant="secondary" disabled={previewPage===previewPages.length-1}>Page <Icon icon={ChevronRight}/></Btn>
         <Btn onClick={downloadPDF}><Icon icon={FileDown}/> Export PDF</Btn><Btn onClick={downloadDOCX} variant="secondary"><Icon icon={FileDown}/> Export DOCX</Btn><Btn onClick={()=>window.print()} variant="secondary"><Icon icon={Printer}/> Print</Btn>
       </div>
     </header>
@@ -489,7 +489,7 @@ function BuilderApp({user,initialWorkspace,onWorkspaceChange,onLogout,onAccount,
       {wizardStep===1&&<div><div className="wizard-choice-grid">{[{id:"quick",name:"Quick Test",desc:"20–25 marks, compact"}, {id:"balanced",name:"Balanced",desc:"Mixed objective + written"}, {id:"detailed",name:"Detailed Exam",desc:"More sections and long answers"}].map(x=><button key={x.id} className={"wizard-choice "+(wizard.pattern===x.id?"selected":"")} onClick={()=>setWizard(w=>({...w,pattern:x.id}))}><b>{x.name}</b><span>{x.desc}</span></button>)}</div><div className="wizard-tip">The wizard creates editable question sections. You can change every question, mark and section after creation.</div></div>}
       {wizardStep===2&&<div className="junior-mode-panel"><div className="junior-mode-icon">✎</div><div><h3>{isJuniorClass(wizard.classVal)?"Junior Class Mode is ON":"Standard Class Mode"}</h3><p>{isJuniorClass(wizard.classVal)?"Class 1–2 papers will include handwriting-friendly answer lines and optional Name / Roll Number fields.":"Choose Class 1 or 2 in the previous step to activate Junior Class Mode automatically."}</p></div></div>}
       {wizardStep===3&&<div className="wizard-review"><div><b>{wizard.classVal}</b><span>Class</span></div><div><b>{wizard.subject}</b><span>Subject</span></div><div><b>{wizard.maxMarks}</b><span>Marks</span></div><div><b>{wizard.duration}</b><span>Duration</span></div><p>Ready to create your editable paper structure.</p></div>}
-      <div className="wizard-footer"><Btn onClick={()=>wizardStep===0?setShowWizard(false):setWizardStep(s=>s-1)} variant="secondary">{wizardStep===0?"Cancel":"← Back"}</Btn>{wizardStep<3?<Btn onClick={()=>setWizardStep(s=>s+1)}>Next →</Btn>:<Btn onClick={finishWizard}>Create Paper ✓</Btn>}</div>
+      <div className="wizard-footer"><Btn onClick={()=>wizardStep===0?setShowWizard(false):setWizardStep(s=>s-1)} variant="secondary">{wizardStep===0?"Cancel":<><Icon icon={ChevronLeft}/> Back</>}</Btn>{wizardStep<3?<Btn onClick={()=>setWizardStep(s=>s+1)}>Next</Btn>:<Btn onClick={finishWizard}>Create Paper</Btn>}</div>
     </div></div>}
 
     {tourStep!==null&&<div className="tour-layer" onClick={e=>{if(e.target===e.currentTarget)finishTour()}}>
@@ -498,7 +498,7 @@ function BuilderApp({user,initialWorkspace,onWorkspaceChange,onLogout,onAccount,
         <div className="tour-step-count">STEP {tourStep+1} OF {tourSteps.length}</div>
         <h3>{tourSteps[tourStep].title}</h3>
         <p>{tourSteps[tourStep].text}</p>
-        <div className="tour-footer"><button className="tour-exit-text" onClick={finishTour}>Exit Guide</button>{tourStep<tourSteps.length-1?<Btn onClick={()=>setTourStep(tourStep+1)}>Next →</Btn>:<Btn onClick={finishTour}>Finish ✓</Btn>}</div>
+        <div className="tour-footer"><button className="tour-exit-text" onClick={finishTour}>Exit Guide</button>{tourStep<tourSteps.length-1?<Btn onClick={()=>setTourStep(tourStep+1)}>Next</Btn>:<Btn onClick={finishTour}>Finish</Btn>}</div>
       </div>
     </div>}
   </div>;
