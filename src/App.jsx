@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import gpsLogo from "./gps-logo.png";
 import html2pdf from "html2pdf.js";
 import { Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell, WidthType, AlignmentType } from "docx";
-import { AlignCenter, AlignLeft, AlignRight, ArrowDown, ArrowUp, ArrowRight, BookOpen, Bold, Check, ChevronDown, ChevronLeft, ChevronRight, ChevronUp, CircleHelp, ClipboardList, Command, Copy, Download, Eye, FileDown, FileText, FolderOpen, Focus, GripVertical, Info, Italic, LayoutTemplate, List, ListOrdered, Maximize2, Minimize2, MoreHorizontal, Palette, PanelLeft, Plus, Printer, Redo2, RefreshCw, Save, Search, Settings, Sparkles, Subscript, Superscript, Table2, Trash2, Underline, Undo2, Upload, UserRound, X } from "lucide-react";
+import { AlignCenter, AlignLeft, AlignRight, ArrowDown, ArrowUp, ArrowRight, BookOpen, Bold, Check, ChevronDown, ChevronLeft, ChevronRight, ChevronUp, CircleHelp, ClipboardList, Command, Copy, Download, Eye, EyeOff, FileDown, FileText, FolderOpen, Focus, GripVertical, Info, Italic, LayoutTemplate, List, ListOrdered, Maximize2, Minimize2, MoreHorizontal, Palette, PanelLeft, Plus, Printer, Redo2, RefreshCw, Save, Search, Settings, Sparkles, Subscript, Superscript, Table2, Trash2, Underline, Undo2, Upload, UserRound, X } from "lucide-react";
 
 const Icon = ({icon:IconComponent,size=16,strokeWidth=1.8,className=""}) => <IconComponent size={size} strokeWidth={strokeWidth} className={className} aria-hidden="true" />;
 
