@@ -228,6 +228,14 @@ function BuilderApp({user,initialWorkspace,onWorkspaceChange,onLogout,onAccount,
   async function downloadDOCX(){try{const blob=await createDocxBlob(header,sections);const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=filename("docx");a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}catch(e){notify(`DOCX export failed. ${e.message||"Please try again."}`)}}
   function resetZoom(){setZoom(1)}
 
+  if(view==="preview") return <div className="full-preview-screen">
+    <header className="full-preview-header">
+      <div className="full-preview-heading"><div className="full-preview-icon">GPS</div><div><h1>Full Paper Preview</h1><p>Review the complete A4 paper before exporting</p></div></div>
+      <div className="full-preview-actions"><Btn onClick={()=>setView("build")} variant="secondary">← Back to Builder</Btn><Btn onClick={downloadPDF}>Export PDF</Btn><Btn onClick={downloadDOCX} variant="secondary">Export DOCX</Btn><Btn onClick={()=>window.print()} variant="secondary">Print</Btn></div>
+    </header>
+    <main className="full-preview-canvas"><div className="full-preview-paper"><div dangerouslySetInnerHTML={{__html:previewHTML}}/></div></main>
+  </div>;
+
   return <div className="app-shell command-shell">
     {notice&&<div className="toast">{notice}</div>}
     <header className="topbar command-topbar">
@@ -245,7 +253,7 @@ function BuilderApp({user,initialWorkspace,onWorkspaceChange,onLogout,onAccount,
         <section id="add-questions" className="command-card"><div className="command-card-head command-questions-head"><div className="command-icon">☷</div><div><h2>Add Questions</h2><p>Create questions and configure their settings</p></div><Btn onClick={addSection}>＋ Add Question</Btn></div><div>{sections.map((sec,i)=><div key={sec.id} className="section-card-wrap"><SectionEditor section={sec} index={i} total={sections.length} onChange={x=>updateSection(i,x)} onDelete={()=>deleteSection(i)} onMoveUp={()=>moveSection(i,i-1)} onMoveDown={()=>moveSection(i,i+1)} onDuplicate={()=>duplicateSection(i)} maxAllowed={max-(current-sec.questionCount*sec.marksPerQ)} notify={notify} language={header.language||"English"} numbering={header.numbering||"alpha"} junior={isJuniorClass(header.classVal)}/></div>)}</div><button onClick={addSection} className="add-section">＋ Add Section (Optional)</button></section>
       </section>
       <aside className="command-preview" id="live-preview"><div className="command-preview-head"><div className="command-preview-title"><div className="command-icon">◉</div><div><h2>Live Preview</h2><p>See how your question paper will look</p></div></div><div className="command-preview-tabs"><button className="active">Preview</button><button onClick={()=>setView("preview")}>Full Preview</button></div></div><div className="command-preview-scroll"><div ref={previewRef} dangerouslySetInnerHTML={{__html:previewHTML}}/></div><div className="command-preview-footer"><Btn onClick={()=>setView("preview")}>↗ Full Preview</Btn><Btn onClick={downloadPDF}>▣ Export as PDF</Btn><Btn onClick={downloadDOCX} variant="secondary">▣ Export as DOCX</Btn></div></aside>
-    {view==="preview"&&<div className="full-preview-overlay"><div className="full-preview-bar"><div><b>Full Paper Preview</b><span>Review the complete A4 paper before exporting</span></div><div className="toolbar-row"><Btn onClick={()=>setView("build")} variant="secondary">← Back to Builder</Btn><Btn onClick={downloadPDF}>Export PDF</Btn><Btn onClick={downloadDOCX} variant="secondary">Export DOCX</Btn><Btn onClick={()=>window.print()} variant="secondary">Print</Btn></div></div><div className="full-preview-scroll"><div ref={previewRef} dangerouslySetInnerHTML={{__html:previewHTML}}/></div></div>}
+
     </main>
   </div>;
 }
