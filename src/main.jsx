@@ -30,54 +30,6 @@ window.fetch = (input, init = {}) => {
   return nativeFetch(input, init);
 };
 
-function addPasswordEye(input) {
-  if (!input || input.dataset.passwordEye === "1") return;
-  const parent = input.parentElement;
-  if (!parent) return;
-  input.dataset.passwordEye = "1";
-  const wrap = document.createElement("div");
-  wrap.style.position = "relative";
-  wrap.style.width = "100%";
-  parent.insertBefore(wrap, input);
-  wrap.appendChild(input);
-  input.style.paddingRight = "42px";
-  const button = document.createElement("button");
-  button.type = "button";
-  button.setAttribute("aria-label", "Show password");
-  button.title = "Show password";
-  button.textContent = "👁️";
-  Object.assign(button.style, {
-    position: "absolute",
-    right: "7px",
-    top: "50%",
-    transform: "translateY(-50%)",
-    border: "0",
-    background: "transparent",
-    cursor: "pointer",
-    padding: "5px 6px",
-    fontSize: "17px",
-    lineHeight: "1",
-    color: "#475569",
-    zIndex: "2"
-  });
-  button.addEventListener("click", () => {
-    const visible = input.type === "text";
-    input.type = visible ? "password" : "text";
-    button.textContent = visible ? "👁️" : "🙈";
-    button.setAttribute("aria-label", visible ? "Show password" : "Hide password");
-    button.title = visible ? "Show password" : "Hide password";
-    input.focus();
-  });
-  wrap.appendChild(button);
-}
-
-function installPasswordEyes() {
-  document.querySelectorAll('input[type="password"]').forEach(addPasswordEye);
-  const observer = new MutationObserver(() => {
-    document.querySelectorAll('input[type="password"]').forEach(addPasswordEye);
-  });
-  observer.observe(document.body, { childList: true, subtree: true });
-}
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
