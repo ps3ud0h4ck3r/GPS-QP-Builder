@@ -203,6 +203,43 @@ function htmlToDocxRuns(html=""){
 function makeDocParagraph(html,opts={}){return new Paragraph({children:htmlToDocxRuns(html),spacing:{after:opts.after??100},alignment:opts.alignment});}
 async function createDocxBlob(header,sections){const children=[];if(header.logoUrl){/* DOCX cannot reliably embed data URLs in all browsers without extra conversion, so the school name remains as the text header. */}children.push(new Paragraph({children:[new TextRun({text:header.school||"Question Paper",bold:true,size:30})],alignment:AlignmentType.CENTER,spacing:{after:50}}));if(header.location)children.push(new Paragraph({children:[new TextRun({text:header.location,size:20})],alignment:AlignmentType.CENTER,spacing:{after:50}}));children.push(new Paragraph({children:[new TextRun({text:`${header.exam||""} ${header.session||""}`,bold:true,size:22})],alignment:AlignmentType.CENTER,spacing:{after:50}}));children.push(new Paragraph({children:[new TextRun({text:`CLASS ${header.classVal||""}`,bold:true,size:20})],alignment:AlignmentType.CENTER,spacing:{after:120}}));if(isJuniorClass(header.classVal)&&header.showStudentInfo!==false) children.push(new Paragraph({children:[new TextRun({text:"Name: ________________________________    Roll No.: ____________",size:20})],spacing:{after:140}}));children.push(new Paragraph({children:[new TextRun({text:`Time: ${header.duration||""}     Subject: ${header.subject||""}     M.M.: ${header.maxMarks||""}`,bold:true,size:20})],spacing:{after:180}}));if(header.instructions){children.push(new Paragraph({children:[new TextRun({text:"Instructions:",bold:true,size:20})],spacing:{after:40}}));String(header.instructions).replace(/\r\n/g,"\n").replace(/\s+(?=\d+\.\s)/g,"\n").split(/\n+/).filter(Boolean).forEach(x=>children.push(new Paragraph({children:[new TextRun({text:x.trim(),size:20})],spacing:{after:40}})))}sections.forEach((sec,si)=>{const type=QUESTION_TYPES.find(t=>t.id===sec.typeId),total=sec.questionCount*sec.marksPerQ,marks=sec.marksPerQ===1?`(${total})`:`(${sec.marksPerQ}x${sec.questionCount}=${total})`;children.push(new Paragraph({children:[new TextRun({text:`Q${si+1}. ${sec.heading||type.label}`,bold:true,size:22}),new TextRun({text:`\t${marks}`,bold:true,size:22})],pageBreakBefore:si>0 && sec.pageBreak==="before",spacing:{before:160,after:100}}));sec.questions.forEach((q,qi)=>{children.push(new Paragraph({children:[new TextRun({text:`${questionLabel(qi,header.numbering||"alpha")} `,bold:true}),...htmlToDocxRuns(q.text||"___________________________________")],pageBreakBefore:si>0 && !!sec.questions[qi-1]?.pageBreakAfter,spacing:{after:80}}));if(Number(q.answerLines||0)>0&&isJuniorClass(header.classVal)){for(let li=0;li<Math.min(12,Number(q.answerLines)||0);li++)children.push(new Paragraph({children:[new TextRun({text:"______________________________________________",size:20})],spacing:{after:90}}));}if(q.options)q.options.forEach((o,i)=>children.push(new Paragraph({children:[new TextRun({text:`${OPT_ALPHA[i]}) ${plainFromHtml(o||"_______")}`})],indent:{left:360},spacing:{after:40}})));if(sec.typeId==="match"){children.push(new Table({width:{size:100,type:WidthType.PERCENTAGE},rows:[new TableRow({children:[new TableCell({children:[new Paragraph({text:"Column A"})]}),new TableCell({children:[new Paragraph({text:"Column B"})]})]}),...(q.matchLeft||[]).map((l,i)=>new TableRow({children:[new TableCell({children:[new Paragraph({text:`${i+1}. ${l||"_______"}`})]}),new TableCell({children:[new Paragraph({text:`${String.fromCharCode(97+i)}. ${(q.matchRight||[])[i]||"_______"}`})]})]}))]}));}})});const doc=new Document({sections:[{properties:{page:{size:{width:12240,height:15840},margin:{top:720,right:720,bottom:720,left:720}}},children}]});return Packer.toBlob(doc);}
 
+
+const PAPER_TEMPLATES = [
+  {id:"unit-test",name:"Unit Test",description:"Compact 20-mark classroom test",header:{exam:"Unit Test",duration:"45 Minutes",maxMarks:"20"},pattern:[["short2",5,2],["fill",5,1]]},
+  {id:"periodic",name:"Periodic Test",description:"Balanced 30-mark periodic assessment",header:{exam:"Periodic Test",duration:"1 Hour",maxMarks:"30"},pattern:[["mcq4",5,1],["short2",5,2],["short3",3,3]]},
+  {id:"half-yearly",name:"Half Yearly",description:"Full 50-mark examination structure",header:{exam:"Half Yearly Examination",duration:"2 Hours",maxMarks:"50"},pattern:[["mcq4",10,1],["short2",5,2],["short3",5,3],["long",3,5]]},
+  {id:"annual",name:"Annual Examination",description:"Full 80-mark annual paper",header:{exam:"Annual Examination",duration:"3 Hours",maxMarks:"80"},pattern:[["mcq4",10,1],["fill",10,1],["short2",5,2],["short3",5,3],["long",5,5]]}
+];
+
+function clonePaper(value){return JSON.parse(JSON.stringify(value));}
+function templateToPaper(template,baseHeader){
+  const header={...DEFAULT_HEADER,...baseHeader,...(template.header||{})};
+  const sections=(template.pattern||[]).map(([typeId,count,marks])=>{
+    const type=QUESTION_TYPES.find(x=>x.id===typeId)||QUESTION_TYPES[0];
+    return {id:uid(),typeId,heading:"",questionCount:count,marksPerQ:marks,questions:Array.from({length:count},()=>makeQuestion(type.id))};
+  });
+  return {header,sections};
+}
+function paginatePaperSections(sections,maxUnits=8){
+  const pages=[]; let page=[]; let units=0;
+  const pushPage=()=>{if(page.length)pages.push(page);page=[];units=0};
+  sections.forEach(sec=>{
+    const questions=sec.questions||[];
+    if(sec.pageBreak==="before"&&page.length)pushPage();
+    if(!questions.length){if(units+1>maxUnits&&page.length)pushPage();page.push(sec);units+=1;return;}
+    let start=0;
+    while(start<questions.length){
+      const capacity=Math.max(1,maxUnits-units-1);
+      const take=Math.min(capacity,questions.length-start);
+      const part={...clonePaper(sec),id:uid(),questions:questions.slice(start,start+take),questionCount:take};
+      page.push(part);units+=1+take;start+=take;
+      if(start<questions.length||questions[start-1]?.pageBreakAfter)pushPage();
+    }
+  });
+  pushPage();
+  return pages.length?pages:[[]];
+}
+
 function BuilderApp({user,initialWorkspace,onWorkspaceChange,onLogout,onAccount,onAdmin}){
   const ws=initialWorkspace||{}; const [view,setView]=useState("build"); const [tourStep,setTourStep]=useState(null); const [header,setHeader]=useState({...DEFAULT_HEADER,...(ws.current?.header||{})}); const [sections,setSections]=useState(ws.current?.sections?.length?ws.current.sections:[makeSection()]); const [savedDrafts,setSavedDrafts]=useState(ws.drafts||[]); const [draftName,setDraftName]=useState(""); const [showDraftPanel,setShowDraftPanel]=useState(false); const [dark,setDark]=useState(!!ws.settings?.dark); const [printFont,setPrintFont]=useState(ws.settings?.printFont||"medium"); const [zoom,setZoom]=useState(ws.settings?.zoom||1); const [notice,setNotice]=useState(""); const logoRef=useRef(); const previewRef=useRef();
   useEffect(()=>{document.documentElement.classList.toggle("dark",dark)},[dark]);
