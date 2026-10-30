@@ -288,6 +288,38 @@ function BuilderApp({user,initialWorkspace,onWorkspaceChange,onLogout,onAccount,
   function saveDraft(){const name=draftName.trim()||`Draft ${new Date().toLocaleDateString("en-IN")}`,draft={name,ts:Date.now(),header,sections};const drafts=[draft,...savedDrafts.filter(d=>d.name!==name)].slice(0,10);setSavedDrafts(drafts);setDraftName("");notify(`Saved: "${name}"`)}
   function loadDraft(d){setHeader(d.header);setSections(d.sections);setShowDraftPanel(false);setView("build")}
   function deleteDraft(ts){const d=savedDrafts.filter(x=>x.ts!==ts);setSavedDrafts(d)}
+
+  function saveTemplate(){
+    const name=(draftName.trim()||header.exam||"My Template").trim();
+    const template={id:uid(),name,description:"Saved paper structure",ts:Date.now(),header:clonePaper(header),sections:clonePaper(sections)};
+    setTemplates(t=>[template,...t.filter(x=>x.name!==name)].slice(0,20)); setDraftName(""); setShowTemplates(true); notify("Template saved: "+name);
+  }
+  function applyTemplate(template){
+    const paper=templateToPaper(template,{...header,school:header.school,location:header.location,session:header.session,subject:header.subject,classVal:header.classVal});
+    setHeader(paper.header); setSections(paper.sections); setShowTemplates(false); setView("build"); setPreviewPage(0); notify("Template applied.");
+  }
+  function deleteTemplate(id){setTemplates(t=>t.filter(x=>x.id!==id))}
+  function duplicateDraft(d){
+    const copy={...clonePaper(d),id:uid(),name:(d.name||"Paper")+" Copy",ts:Date.now()};
+    setSavedDrafts(x=>[copy,...x].slice(0,20)); notify("Paper duplicated.");
+  }
+  function recoverLocal(){if(!recovery)return;setHeader({...DEFAULT_HEADER,...recovery.header});setSections(recovery.sections?.length?recovery.sections:[makeSection()]);setRecovery(null);notify("Recovered your latest local draft.");}
+  function discardRecovery(){setRecovery(null)}
+  function startWizard(){setWizardStep(0);setWizard({...wizard,classVal:header.classVal,subject:header.subject});setShowWizard(true)}
+  function finishWizard(){
+    const presets={
+      quick:[["mcq4",5,1],["short2",5,2],["short3",3,3]],
+      balanced:[["mcq4",5,1],["fill",5,1],["short2",5,2],["short3",3,3]],
+      detailed:[["mcq4",10,1],["short2",5,2],["short3",5,3],["long",3,5]]
+    };
+    const pattern=presets[wizard.pattern]||presets.balanced;
+    let remaining=Math.max(1,parseInt(wizard.maxMarks)||30), selected=[], used=0;
+    for(const [type,count,marks] of pattern){const allowed=Math.max(0,remaining-used);const take=Math.min(count,Math.floor(allowed/marks));if(take>0){selected.push({id:uid(),typeId:type,heading:"",questionCount:take,marksPerQ:marks,questions:Array.from({length:take},()=>makeQuestion(type))});used+=take*marks;}}
+    if(!selected.length) selected=[makeSection()];
+    const nextHeader={...header,classVal:wizard.classVal||header.classVal,subject:wizard.subject||header.subject,exam:wizard.exam||header.exam,maxMarks:String(wizard.maxMarks||30),duration:wizard.duration||header.duration,showStudentInfo:isJuniorClass(wizard.classVal)};
+    setHeader(nextHeader);setSections(selected);setShowWizard(false);setView("build");setPreviewPage(0);notify("Paper Wizard created your paper structure.");
+  }
+
   function handleLogo(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>setHeader(h=>({...h,logoUrl:ev.target.result}));r.readAsDataURL(f)}
   function newPaper(){if(!confirm("Start a new paper? Unsaved changes on this screen will be lost."))return;setHeader(DEFAULT_HEADER);setSections([makeSection()]);setView("build");setShowDraftPanel(false);window.scrollTo({top:0,behavior:"smooth"})}
   const previewHTML=useMemo(()=>buildPreviewHTML(header,sections,PRINT_FONTS[printFont],zoom),[header,sections,printFont,zoom]);
