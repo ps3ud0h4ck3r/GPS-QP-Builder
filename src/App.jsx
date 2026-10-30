@@ -53,12 +53,18 @@ function plainFromHtml(html="") {
 }
 function hasHtml(v="") { return /<([a-z][\s\S]*?)>/i.test(v); }
 
-const Input = ({ label, value, onChange, placeholder, type="text", small, disabled }) => (
-  <div style={{marginBottom:small?8:14}}>
+function Input({ label, value, onChange, placeholder, type="text", small, disabled }) {
+  const [showPassword,setShowPassword]=useState(false);
+  const isPassword=type==="password";
+  const inputType=isPassword&&showPassword?"text":type;
+  return <div className="field" style={{marginBottom:small?8:14}}>
     {label && <label className="field-label">{label}</label>}
-    <input disabled={disabled} type={type} value={value} onChange={e=>onChange(e.target.value)} placeholder={placeholder} className="field-input" style={{padding:small?"7px 10px":"9px 12px",fontSize:small?13:14}} />
-  </div>
-);
+    <div className={isPassword?"field-control field-control-password":"field-control"}>
+      <input disabled={disabled} type={inputType} value={value} onChange={e=>onChange(e.target.value)} placeholder={placeholder} className="field-input" style={{padding:small?"7px 10px":"9px 12px",fontSize:small?13:14}} />
+      {isPassword&&<button type="button" className="password-toggle" aria-label={showPassword?"Hide password":"Show password"} title={showPassword?"Hide password":"Show password"} onClick={()=>setShowPassword(v=>!v)}>{showPassword?<Icon icon={EyeOff}/>:<Icon icon={Eye}/>}</button>}
+    </div>
+  </div>;
+}
 const Textarea = ({ label, value, onChange, placeholder, rows=2 }) => (
   <div style={{marginBottom:14}}>
     {label && <label className="field-label">{label}</label>}
