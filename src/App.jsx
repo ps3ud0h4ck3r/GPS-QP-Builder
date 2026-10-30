@@ -284,6 +284,7 @@ function BuilderApp({user,initialWorkspace,onWorkspaceChange,onLogout,onAccount,
     </div>}
   </div>;
 
+}
 
 function SetupScreen({onDone}){
   const [key,setKey]=useState(""); const [busy,setBusy]=useState(false); const [error,setError]=useState("");
