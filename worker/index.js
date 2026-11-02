@@ -782,6 +782,27 @@ async function setupStatus(env){
   });
 }
 
+async function setupAdminRecovery(request,env){
+  const key=env.GPS_SETUP_KEY;
+  if(!key)return json({error:"GPS_SETUP_KEY is not configured."},500);
+  if((request.headers.get("x-setup-key")||"")!==key)return json({error:"Invalid setup key."},403);
+  const collision=await env.DB.prepare("SELECT id,role FROM users WHERE username=? COLLATE NOCASE").bind("admin").first();
+  if(collision&&collision.role!=="admin")return json({error:"The username admin is already assigned to a non-admin account. No changes were made."},409);
+  let admin=await env.DB.prepare("SELECT * FROM users WHERE role='admin' ORDER BY created_at LIMIT 1").first();
+  const timestamp=now();
+  const passwordHash=await hashPassword("admin");
+  if(admin){
+    await env.DB.prepare("UPDATE users SET username=?,password_hash=?,force_password_change=1,active=1,updated_at=? WHERE id=?").bind("admin",passwordHash,timestamp,admin.id).run();
+  }else{
+    const uid=id();
+    await env.DB.prepare("INSERT INTO users(id,username,password_hash,name,email,role,active,force_password_change,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?)").bind(uid,"admin",passwordHash,"Administrator","","admin",1,1,timestamp,timestamp).run();
+    admin={id:uid};
+    await saveWorkspace(env,uid,{current:null,drafts:[],templates:[],settings:{}});
+  }
+  await env.DB.prepare("DELETE FROM sessions WHERE user_id=?").bind(admin.id).run();
+  await writeAudit(env,admin.id,"admin_recovery_reset",admin.id,null,{username:"admin",forcePasswordChange:true});
+  return json({ok:true,username:"admin",passwordReset:true,forcePasswordChange:true});
+}
 async function setupBootstrap(request,env){
   const key=env.GPS_SETUP_KEY;
 
@@ -880,6 +901,13 @@ export default {
           url.pathname==="/api/setup/bootstrap"
         ){
           return setupBootstrap(request,env);
+        }
+
+        if(
+          request.method==="POST"&&
+          url.pathname==="/api/setup/admin-recovery"
+        ){
+          return setupAdminRecovery(request,env);
         }
 
         if(
