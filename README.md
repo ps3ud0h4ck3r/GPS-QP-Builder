@@ -91,3 +91,6 @@ AI generation has been completely removed from the app, UI, package and backend.
 
 
 Admin credential recovery uses the Cloudflare GPS_SETUP_KEY secret.
+
+
+Admin console rollout: account deletion, teacher impersonation controls, and cross-account paper inventory.
