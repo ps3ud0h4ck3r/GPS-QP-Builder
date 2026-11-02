@@ -628,11 +628,11 @@ async function adminPapersGet(env,u){
     const current=data.current;
     if(current&&(current.header||current.sections)){
       const h=current.header||{};
-      papers.push({id:row.user_id+":current",kind:"Current workspace",name:h.exam||"Untitled paper",classVal:h.classVal||"",subject:h.subject||"",updatedAt:current.updatedAt||row.updated_at||0,owner});
+      papers.push({id:row.user_id+":current",kind:"Current workspace",name:h.exam||"Untitled paper",classVal:h.classVal||"",subject:h.subject||"",updatedAt:current.updatedAt||row.updated_at||0,owner,header:h,sections:Array.isArray(current.sections)?current.sections:[]});
     }
     for(const [i,d] of (Array.isArray(data.drafts)?data.drafts:[]).entries()){
       const h=d.header||{};
-      papers.push({id:row.user_id+":draft:"+String(d.ts||i),kind:"Saved draft",name:d.name||h.exam||"Untitled paper",classVal:h.classVal||"",subject:h.subject||"",updatedAt:d.ts||row.updated_at||0,owner});
+      papers.push({id:row.user_id+":draft:"+String(d.ts||i),kind:"Saved draft",name:d.name||h.exam||"Untitled paper",classVal:h.classVal||"",subject:h.subject||"",updatedAt:d.ts||row.updated_at||0,owner,header:h,sections:Array.isArray(d.sections)?d.sections:[]});
     }
   }
   papers.sort((a,b)=>(Number(b.updatedAt)||0)-(Number(a.updatedAt)||0));
