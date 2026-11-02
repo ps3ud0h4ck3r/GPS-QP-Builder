@@ -608,6 +608,37 @@ async function adminUserPatch(request,env,u,targetId){
   });
 }
 
+async function adminUserDelete(env,u,targetId){
+  if(u.role!=="admin")return json({error:"Admin access required."},403);
+  if(targetId===u.id)return json({error:"You cannot delete your own account."},400);
+  const target=await env.DB.prepare("SELECT id,username,role FROM users WHERE id=?").bind(targetId).first();
+  if(!target)return json({error:"User not found."},404);
+  await env.DB.prepare("DELETE FROM users WHERE id=?").bind(targetId).run();
+  await writeAudit(env,u.id,"delete_user",targetId,null,{username:target.username,role:target.role});
+  return json({ok:true});
+}
+
+async function adminPapersGet(env,u){
+  if(u.role!=="admin")return json({error:"Admin access required."},403);
+  const rows=await env.DB.prepare("SELECT u.id AS user_id,u.username,u.name,w.data_json,w.updated_at FROM users u LEFT JOIN workspaces w ON w.user_id=u.id ORDER BY u.name COLLATE NOCASE,u.username COLLATE NOCASE").all();
+  const papers=[];
+  for(const row of rows.results||[]){
+    let data={};try{data=JSON.parse(row.data_json||"{}")}catch{}
+    const owner={id:row.user_id,username:row.username,name:row.name||row.username};
+    const current=data.current;
+    if(current&&(current.header||current.sections)){
+      const h=current.header||{};
+      papers.push({id:row.user_id+":current",kind:"Current workspace",name:h.exam||"Untitled paper",classVal:h.classVal||"",subject:h.subject||"",updatedAt:current.updatedAt||row.updated_at||0,owner});
+    }
+    for(const [i,d] of (Array.isArray(data.drafts)?data.drafts:[]).entries()){
+      const h=d.header||{};
+      papers.push({id:row.user_id+":draft:"+String(d.ts||i),kind:"Saved draft",name:d.name||h.exam||"Untitled paper",classVal:h.classVal||"",subject:h.subject||"",updatedAt:d.ts||row.updated_at||0,owner});
+    }
+  }
+  papers.sort((a,b)=>(Number(b.updatedAt)||0)-(Number(a.updatedAt)||0));
+  return json({papers,total:papers.length});
+}
+
 async function adminReset(request,env,u,targetId){
   if(u.role!=="admin"){
     return json({
@@ -984,6 +1015,13 @@ export default {
         }
 
         if(
+          url.pathname==="/api/admin/papers"&&
+          request.method==="GET"
+        ){
+          return adminPapersGet(env,u);
+        }
+
+        if(
           url.pathname==="/api/admin/users"&&
           request.method==="POST"
         ){
@@ -993,6 +1031,14 @@ export default {
         const m=url.pathname.match(
           /^\/api\/admin\/users\/([^/]+)(?:\/(reset-password|impersonate))?$/
         );
+
+        if(
+          m&&
+          request.method==="DELETE"&&
+          !m[2]
+        ){
+          return adminUserDelete(env,u,m[1]);
+        }
 
         if(
           m&&
