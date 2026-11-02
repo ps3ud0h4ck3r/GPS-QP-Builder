@@ -88,3 +88,6 @@ Workspace data is stored per user in D1. This means a teacher can sign in from a
 ## AI
 
 AI generation has been completely removed from the app, UI, package and backend.
+
+
+Admin credential recovery uses the Cloudflare GPS_SETUP_KEY secret.
