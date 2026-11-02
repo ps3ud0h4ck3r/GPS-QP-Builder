@@ -94,3 +94,6 @@ Admin credential recovery uses the Cloudflare GPS_SETUP_KEY secret.
 
 
 Admin console rollout: account deletion, teacher impersonation controls, and cross-account paper inventory.
+
+
+Admin console release: create teacher/admin accounts, disable/enable/delete accounts, reset passwords, impersonate users, restore admin sessions, and review every account's current workspace and saved drafts.
