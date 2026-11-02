@@ -14,6 +14,7 @@ School-wide Question Paper Builder for Goodwill Public School.
 - Section and question drag-and-drop ordering
 - Better question numbering
 - A4 page-aware preview and page-break controls
+- Assertion and Reasoning question format with separate assertion, reason and editable answer options
 - English, Hindi and Sanskrit paper labels
 - Rich formatting: bold, italic, underline, alignment, lists, superscript, subscript, symbols and tables
 - Direct A4 PDF export
