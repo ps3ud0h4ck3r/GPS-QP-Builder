@@ -1209,3 +1209,25 @@ body{
   .btn,.command-icon,.preview-controls,.theme-chip,.command-user,.command-step{transition:none!important}
   .btn:hover,.command-icon:hover,.preview-controls:hover,.theme-chip:hover,.command-user:hover{transform:none!important}
 }
+
+/* Assertion and Reasoning question editor */
+.assertion-reason-editor{
+  display:grid;
+  gap:8px;
+  padding:14px;
+  border:1px solid var(--ui-line);
+  border-radius:12px;
+  background:var(--ui-surface-2);
+}
+.assertion-reason-editor .field-label{
+  margin:0;
+  color:var(--ui-text);
+  font-weight:700;
+}
+.assertion-reason-editor .rich-wrap{background:var(--ui-surface)!important}
+.assertion-reason-block{margin:6px 0 10px;line-height:1.55}
+.assertion-reason-block p{margin:0 0 8px}
+.assertion-reason-block .preview-options{margin-top:12px;padding-left:18px}
+.assertion-reason-block .preview-options>div{margin:4px 0}
+.dark .assertion-reason-editor{background:var(--ui-surface-2);border-color:var(--ui-line)}
+@media(max-width:600px){.assertion-reason-editor{padding:10px}}
