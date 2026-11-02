@@ -463,6 +463,7 @@ async function adminUserCreate(request,env,u){
   const username=String(b.username||"").trim();
   const email=String(b.email||"").trim();
   const password=String(b.password||"");
+  const role=b.role==="admin"?"admin":"teacher";
 
   if(!name||!username||!password){
     return json({
@@ -493,7 +494,7 @@ async function adminUserCreate(request,env,u){
       await hashPassword(password),
       name,
       email,
-      "teacher",
+      role,
       1,
       1,
       now(),
@@ -517,7 +518,7 @@ async function adminUserCreate(request,env,u){
       "create_user",
       uid,
       null,
-      {role:"teacher"}
+      {role}
     );
 
     return json({
@@ -527,7 +528,7 @@ async function adminUserCreate(request,env,u){
         username,
         name,
         email,
-        role:"teacher",
+        role,
         active:true
       }
     });
