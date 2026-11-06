@@ -77,9 +77,26 @@ const Btn = ({ onClick, children, variant="primary", small, disabled, full, titl
 const Card = ({ children, style, className="" }) => <div className={`card ${className}`} style={style}>{children}</div>;
 const Badge = ({ children, color="var(--badge-bg)", textColor="var(--badge-text)" }) => <span className="badge" style={{background:color,color:textColor}}>{children}</span>;
 
+function FractionDialog({ onInsert, onClose }) {
+  const [numerator,setNumerator]=useState("");
+  const [denominator,setDenominator]=useState("");
+  const submit=()=>{const n=numerator.trim(),d=denominator.trim();if(!n||!d)return;onInsert(n,d);onClose();};
+  return <div className="fraction-dialog-backdrop" onMouseDown={e=>{if(e.target===e.currentTarget)onClose()}}>
+    <div className="fraction-dialog" role="dialog" aria-modal="true" aria-label="Insert fraction">
+      <div className="fraction-dialog-head"><div><strong>Insert Fraction</strong><div className="small-muted">Create a proper or improper fraction</div></div><button type="button" className="icon-btn" onClick={onClose} aria-label="Close"><Icon icon={X}/></button></div>
+      <div className="fraction-preview"><span>{numerator||"a"}</span><i></i><span>{denominator||"b"}</span></div>
+      <div className="fraction-fields"><Input label="Numerator" value={numerator} onChange={setNumerator} placeholder="e.g. 3"/><Input label="Denominator" value={denominator} onChange={setDenominator} placeholder="e.g. 4"/></div>
+      <div className="toolbar-row"><Btn variant="ghost" onClick={onClose}>Cancel</Btn><Btn onClick={submit} disabled={!numerator.trim()||!denominator.trim()}>Insert Fraction</Btn></div>
+    </div>
+  </div>;
+}
+function fractionHtml(numerator,denominator){
+  return '<span class="math-fraction" contenteditable="false"><span class="math-fraction-num">' + escapeHtml(numerator) + '</span><span class="math-fraction-bar"></span><span class="math-fraction-den">' + escapeHtml(denominator) + '</span></span>&nbsp;';
+}
 function RichTextEditor({ value, onChange, placeholder, language="English" }) {
   const ref = useRef(null);
   const lastValue = useRef(value);
+  const [fractionOpen,setFractionOpen]=useState(false);
   useEffect(() => {
     if (!ref.current || lastValue.current === value) return;
     ref.current.innerHTML = hasHtml(value) ? value : escapeHtml(value).replace(/\n/g,"<br>");
@@ -98,24 +115,26 @@ function RichTextEditor({ value, onChange, placeholder, language="English" }) {
   function insert(text) { ref.current?.focus(); document.execCommand("insertText", false, text); emit(); }
   function insertTable() {
     ref.current?.focus();
-    const html = `<table class="question-table"><tbody>${Array.from({length:3},(_,r)=>`<tr>${Array.from({length:3},(_,c)=>`<td>${r===0?`Heading ${c+1}`:""}</td>`).join("")}</tr>`).join("")}</tbody></table><br>`;
+    const html = '<table class="question-table"><tbody>' + Array.from({length:3},(_,r)=>'<tr>' + Array.from({length:3},(_,c)=>'<td>' + (r===0 ? "Heading " + (c+1) : "") + "</td>").join("") + "</tr>").join("") + "</tbody></table><br>";
     document.execCommand("insertHTML", false, html); emit();
   }
+  function insertFraction(n,d) { ref.current?.focus(); document.execCommand("insertHTML", false, fractionHtml(n,d)); emit(); }
   return <div className="rich-wrap">
     <div className="rich-toolbar">
       <button type="button" aria-label="Bold" title="Bold" onMouseDown={e=>e.preventDefault()} onClick={()=>command("bold")}><Icon icon={Bold}/></button>
       <button type="button" aria-label="Italic" title="Italic" onMouseDown={e=>e.preventDefault()} onClick={()=>command("italic")}><Icon icon={Italic}/></button><button type="button" aria-label="Underline" title="Underline" onMouseDown={e=>e.preventDefault()} onClick={()=>command("underline")}><Icon icon={Underline}/></button><button type="button" aria-label="Align left" title="Align left" onMouseDown={e=>e.preventDefault()} onClick={()=>command("justifyLeft")}><Icon icon={AlignLeft}/></button><button type="button" aria-label="Align center" title="Align center" onMouseDown={e=>e.preventDefault()} onClick={()=>command("justifyCenter")}><Icon icon={AlignCenter}/></button><button type="button" aria-label="Align right" title="Align right" onMouseDown={e=>e.preventDefault()} onClick={()=>command("justifyRight")}><Icon icon={AlignRight}/></button><button type="button" aria-label="Bulleted list" title="Bulleted list" onMouseDown={e=>e.preventDefault()} onClick={()=>command("insertUnorderedList")}><Icon icon={List}/></button><button type="button" aria-label="Numbered list" title="Numbered list" onMouseDown={e=>e.preventDefault()} onClick={()=>command("insertOrderedList")}><Icon icon={ListOrdered}/></button>
       <button type="button" aria-label="Superscript" title="Superscript" onMouseDown={e=>e.preventDefault()} onClick={()=>command("superscript")}><Icon icon={Superscript}/></button>
       <button type="button" aria-label="Subscript" title="Subscript" onMouseDown={e=>e.preventDefault()} onClick={()=>command("subscript")}><Icon icon={Subscript}/></button>
+      <button type="button" className="fraction-toolbar-btn" aria-label="Insert fraction" title="Insert fraction" onMouseDown={e=>e.preventDefault()} onClick={()=>setFractionOpen(true)}>½</button>
       <select onChange={e=>{ if(e.target.value) insert(e.target.value); e.target.value=""; }} defaultValue="" aria-label="Greek symbols">
         <option value="">Ω Greek / symbols</option>{GREEK.map(x=><option key={x} value={x}>{x}</option>)}
       </select>
       <button type="button" aria-label="Insert table" title="Insert table" onMouseDown={e=>e.preventDefault()} onClick={insertTable}><Icon icon={Table2}/></button>
     </div>
     <div ref={ref} contentEditable suppressContentEditableWarning className="rich-editor" lang={language==="Hindi"?"hi":language==="Sanskrit"?"sa":"en"} dir="auto" inputMode="text" spellCheck={false} data-placeholder={placeholder||""} onInput={emit} onCompositionEnd={emit} onBlur={emit} />
+    {fractionOpen&&<FractionDialog onInsert={insertFraction} onClose={()=>setFractionOpen(false)}/>}
   </div>;
 }
-
 function DrawCanvas({ onSave, onCancel }) {
   const canvasRef=useRef(); const drawing=useRef(false); const last=useRef({x:0,y:0});
   function pos(e){const r=canvasRef.current.getBoundingClientRect(),s=e.touches?e.touches[0]:e;return{x:s.clientX-r.left,y:s.clientY-r.top};}
