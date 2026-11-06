@@ -137,7 +137,7 @@ function RichTextEditor({ value, onChange, placeholder, language="English" }) {
 }
 function MathTextField({ value, onChange, placeholder, language="English" }) {
   const ref=useRef(null); const lastValue=useRef(value); const [fractionOpen,setFractionOpen]=useState(false);
-  useEffect(()=>{if(!ref.current||lastValue.current===value)return;ref.current.innerHTML=hasHtml(value)?value:escapeHtml(value).replace(/\n/g,"<br>");lastValue.current=value;},[value]);
+  useEffect(()=>{if(!ref.current)return;if(lastValue.current!==value || (ref.current.innerHTML==="" && value)){ref.current.innerHTML=hasHtml(value)?value:escapeHtml(value).replace(/\n/g,"<br>");lastValue.current=value;}},[value]);
   function emit(){if(!ref.current)return;const html=ref.current.innerHTML;lastValue.current=html;onChange(html);}
   function insertFraction(n,d){ref.current?.focus();document.execCommand("insertHTML",false,fractionHtml(n,d));emit();}
   return <div className="math-field-wrap">
