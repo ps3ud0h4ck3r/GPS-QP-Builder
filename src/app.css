@@ -1480,3 +1480,99 @@ body{
     padding:6px!important;
   }
 }
+
+
+/* Mathematical fraction input and print rendering */
+.math-fraction{
+  display:inline-flex;
+  flex-direction:column;
+  align-items:stretch;
+  justify-content:center;
+  vertical-align:middle;
+  line-height:1;
+  min-width:1.35em;
+  margin:0 .12em;
+  text-align:center;
+}
+.math-fraction-num,.math-fraction-den{display:block;padding:0 .18em;line-height:1.05;white-space:nowrap}
+.math-fraction-bar{display:block;border-top:1.5px solid currentColor;margin:2px 0}
+.rich-editor .math-fraction{cursor:default}
+.fraction-toolbar-btn{
+  min-width:28px;
+  font-size:17px;
+  font-weight:700;
+  line-height:1;
+}
+.math-field-wrap{
+  position:relative;
+  display:flex;
+  align-items:center;
+  width:100%;
+  min-width:0;
+}
+.math-field-editor{
+  width:100%;
+  min-height:36px!important;
+  padding:8px 42px 8px 10px!important;
+  box-sizing:border-box;
+  overflow-wrap:anywhere;
+}
+.math-field-fraction{
+  position:absolute;
+  right:5px;
+  top:50%;
+  transform:translateY(-50%);
+  width:30px;
+  height:28px;
+  border:1px solid var(--ui-line);
+  border-radius:6px;
+  background:var(--ui-surface-2);
+  color:var(--ui-text);
+  font-weight:700;
+  cursor:pointer;
+  z-index:2;
+}
+.math-field-fraction:hover{background:var(--ui-surface);transform:translateY(-50%) scale(1.03)}
+.fraction-dialog-backdrop{
+  position:fixed;
+  inset:0;
+  z-index:10000;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:18px;
+  background:rgba(15,18,23,.38);
+  backdrop-filter:blur(5px);
+  -webkit-backdrop-filter:blur(5px);
+}
+.fraction-dialog{
+  width:min(420px,calc(100vw - 32px));
+  background:var(--ui-surface);
+  color:var(--ui-text);
+  border:1px solid var(--ui-line);
+  border-radius:14px;
+  padding:18px;
+  box-shadow:0 24px 70px rgba(0,0,0,.24);
+}
+.fraction-dialog-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:16px}
+.fraction-dialog-head strong{font-size:16px}
+.fraction-preview{
+  min-height:72px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  margin:4px 0 16px;
+  padding:10px;
+  border:1px solid var(--ui-line);
+  border-radius:9px;
+  background:var(--ui-surface-2);
+  font-size:20px;
+}
+.fraction-preview i{display:block;width:56px;border-top:2px solid currentColor;margin:4px 0}
+.fraction-fields{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:520px){
+  .fraction-fields{grid-template-columns:1fr}
+  .fraction-dialog{padding:14px}
+}
+.dark .math-field-fraction{background:var(--ui-surface-2);border-color:var(--ui-line)}
