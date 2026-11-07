@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import gpsLogo from "./gps-logo.png";
 import html2pdf from "html2pdf.js";
 import { Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell, WidthType, AlignmentType } from "docx";
-import { AlignCenter, AlignLeft, AlignRight, ArrowDown, ArrowUp, ArrowRight, BookOpen, Bold, Check, ChevronDown, ChevronLeft, ChevronRight, ChevronUp, CircleHelp, ClipboardList, Command, Copy, Download, Eye, EyeOff, FileDown, FileText, FolderOpen, Focus, GripVertical, Info, Italic, LayoutTemplate, List, ListOrdered, Maximize2, Minimize2, Minus, MoreHorizontal, Palette, PanelLeft, Plus, Printer, Redo2, RefreshCw, Save, Search, Settings, Shield, Sparkles, Subscript, Superscript, Table2, Trash2, Underline, Undo2, Upload, UserRound, X } from "lucide-react";
+import { AlignCenter, AlignLeft, AlignRight, ArrowDown, ArrowUp, ArrowRight, BookOpen, Bold, Check, ChevronDown, ChevronLeft, ChevronRight, ChevronUp, CircleHelp, ClipboardList, Command, Copy, Download, Eye, EyeOff, FileDown, FileText, FolderOpen, Focus, GripVertical, Info, Italic, LayoutTemplate, List, ListOrdered, Maximize2, Minimize2, Minus, MoreHorizontal, Palette, PanelLeft, Plus, Printer, Redo2, RefreshCw, Save, Search, Settings, Shield, Sparkles, Subscript, Superscript, Table2, Trash2, Underline, Undo2, Upload, UserRound, LogOut, X } from "lucide-react";
 
 const Icon = ({icon:IconComponent,size=16,strokeWidth=1.8,className=""}) => <IconComponent size={size} strokeWidth={strokeWidth} className={className} aria-hidden="true" />;
 
@@ -287,6 +287,7 @@ function paginatePaperSections(sections,maxUnits=8){
 function BuilderApp({user,initialWorkspace,onWorkspaceChange,onLogout,onAccount,onAdmin}){
   const ws=initialWorkspace||{}; const [view,setView]=useState("build"); const [activeStep,setActiveStep]=useState(1); const [commandSearch,setCommandSearch]=useState(""); const [tourStep,setTourStep]=useState(null); const [header,setHeader]=useState({...DEFAULT_HEADER,...(ws.current?.header||{})}); const [sections,setSections]=useState(ws.current?.sections?.length?ws.current.sections:[makeSection()]); const [savedDrafts,setSavedDrafts]=useState(ws.drafts||[]); const [templates,setTemplates]=useState(ws.templates?.length?ws.templates:[]); const [draftName,setDraftName]=useState(""); const [showDraftPanel,setShowDraftPanel]=useState(false); const [showTemplates,setShowTemplates]=useState(false); const [showWizard,setShowWizard]=useState(false); const [wizardStep,setWizardStep]=useState(0); const [wizard,setWizard]=useState({classVal:DEFAULT_HEADER.classVal,subject:DEFAULT_HEADER.subject,exam:"Half Yearly Examination",maxMarks:"30",duration:"1.5 Hours",pattern:"balanced"}); const [recovery,setRecovery]=useState(null); const [lastSavedAt,setLastSavedAt]=useState(Date.now()); const [dark,setDark]=useState(!!ws.settings?.dark); const [printFont,setPrintFont]=useState(ws.settings?.printFont||"medium"); const [zoom,setZoom]=useState(ws.settings?.zoom||1); const [notice,setNotice]=useState(""); const [previewPage,setPreviewPage]=useState(0); const logoRef=useRef(); const previewRef=useRef();
   const [commandOpen,setCommandOpen]=useState(false);
+  const [userMenuOpen,setUserMenuOpen]=useState(false);
   const [designOpen,setDesignOpen]=useState(false);
   const [bankOpen,setBankOpen]=useState(false);
   const [bankSearch,setBankSearch]=useState("");
@@ -299,7 +300,8 @@ function BuilderApp({user,initialWorkspace,onWorkspaceChange,onLogout,onAccount,
   const historySkip=useRef(false);
   const previousSnapshot=useRef(JSON.stringify({header,sections}));
   useEffect(()=>{document.documentElement.classList.toggle("dark",dark)},[dark]);
-  useEffect(()=>{const h=e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==="k"){e.preventDefault();setCommandOpen(v=>!v)}if(e.key==="Escape"){setCommandOpen(false);setDesignOpen(false);setBankOpen(false)}};window.addEventListener("keydown",h);return()=>window.removeEventListener("keydown",h)},[]);
+  useEffect(()=>{const h=e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==="k"){e.preventDefault();setCommandOpen(v=>!v)}if(e.key==="Escape"){setCommandOpen(false);setDesignOpen(false);setBankOpen(false);setUserMenuOpen(false)}};window.addEventListener("keydown",h);return()=>window.removeEventListener("keydown",h)},[]);
+  useEffect(()=>{const close=e=>{if(!e.target.closest?.(".command-user-menu"))setUserMenuOpen(false)};document.addEventListener("click",close);return()=>document.removeEventListener("click",close)},[]);
 
   useEffect(()=>{
     const key="gps_qp_autosave_"+String(user?.id||user?.username||"default");
@@ -471,7 +473,13 @@ function BuilderApp({user,initialWorkspace,onWorkspaceChange,onLogout,onAccount,
     <header className="topbar command-topbar">
       <div className="brand command-brand"><div className="command-brand-mark">GPS</div><div><strong>GPS - QP Builder</strong><span>Goodwill Public School</span></div></div>
       <nav className="command-nav" data-tour="tour-create"><button className={view==="build"&&!showDraftPanel&&!showTemplates?"active":""} onClick={()=>{setView("build");setShowDraftPanel(false);setShowTemplates(false)}}><Icon icon={FileText}/> <span>Create Paper</span></button><button className={showDraftPanel?"active":""} onClick={()=>{setShowDraftPanel(true);setShowTemplates(false)}}><Icon icon={FolderOpen}/> <span>My Papers</span></button><button className={showTemplates?"active":""} onClick={()=>{setShowTemplates(true);setShowDraftPanel(false)}}><Icon icon={LayoutTemplate}/> <span>Templates</span></button><button onClick={startWizard}><Icon icon={Sparkles}/> <span>Paper Wizard</span></button>{user?.role==="admin"&&<button onClick={onAdmin}><Icon icon={Shield}/> <span>Admin</span></button>}<button onClick={onAccount}><Icon icon={Settings}/> <span>Settings</span></button></nav>
-      <div className="command-user" onClick={onAccount}><span className="command-avatar">{String(user?.name||user?.username||"A").trim().charAt(0).toUpperCase()}</span><span className="command-user-copy"><b>{user?.name||user?.username||"Teacher"}</b><small>{user?.role==="admin"?"Administrator":"Teacher"}</small></span><span>⌄</span></div>
+      <div className="command-user-menu">
+        <button type="button" className="command-user" aria-haspopup="menu" aria-expanded={userMenuOpen} onClick={e=>{e.stopPropagation();setUserMenuOpen(v=>!v)}}><span className="command-avatar">{String(user?.name||user?.username||"A").trim().charAt(0).toUpperCase()}</span><span className="command-user-copy"><b>{user?.name||user?.username||"Teacher"}</b><small>{user?.role==="admin"?"Administrator":"Teacher"}</small></span><span className="command-user-chevron">⌄</span></button>
+        {userMenuOpen&&<div className="command-user-dropdown" role="menu">
+          <button type="button" role="menuitem" onClick={()=>{setUserMenuOpen(false);onAccount()}}><Icon icon={Settings}/> <span>My Account</span></button>
+          <button type="button" role="menuitem" className="logout-item" onClick={()=>{setUserMenuOpen(false);onLogout()}}><Icon icon={LogOut}/> <span>Logout</span></button>
+        </div>}
+      </div>
     </header>
     <main className="command-workspace">
       <aside className="command-sidebar"><div className="command-steps"><button className={"command-step "+(activeStep===1?"active":"")} onClick={()=>{setActiveStep(1);document.getElementById("paper-details")?.scrollIntoView({behavior:"smooth"})}}><span>1</span><div><b>Paper Details</b><small>Class, Subject, Marks</small></div></button><button className={"command-step "+(activeStep===2?"active":"")} onClick={()=>{setActiveStep(2);document.getElementById("add-questions")?.scrollIntoView({behavior:"smooth"})}}><span>2</span><div><b>Add Questions</b><small>Create your questions</small></div></button><button className={"command-step "+(activeStep===3?"active":"")} onClick={()=>{setActiveStep(3);document.getElementById("live-preview")?.scrollIntoView({behavior:"smooth"})}}><span>3</span><div><b>Preview & Export</b><small>Check and download</small></div></button></div><button className="command-help" data-tour="tour-help" onClick={startTour}><b>Need Help?</b><small>Quick Builder Tips</small><strong>›</strong></button></aside>
