@@ -1576,3 +1576,15 @@ body{
   .fraction-dialog{padding:14px}
 }
 .dark .math-field-fraction{background:var(--ui-surface-2);border-color:var(--ui-line)}
+
+/* User account dropdown */
+.command-user-menu{position:relative;display:flex;align-items:center}
+.command-user{appearance:none;border:0;font:inherit;display:flex;align-items:center;gap:8px;min-width:0;cursor:pointer;text-align:left}
+.command-user-dropdown{position:absolute;right:0;top:calc(100% + 8px);width:190px;padding:6px;background:var(--ui-surface,#fff);border:1px solid var(--ui-border,#e5e7eb);border-radius:10px;box-shadow:0 14px 35px #0003;z-index:300;display:flex;flex-direction:column}
+.command-user-dropdown button{appearance:none;width:100%;display:flex;align-items:center;gap:9px;border:0;background:transparent;color:var(--ui-text,#18181b);padding:9px 10px;border-radius:7px;font:inherit;font-size:12px;font-weight:650;cursor:pointer;text-align:left}
+.command-user-dropdown button:hover{background:var(--ui-surface-3,#f4f4f5)}
+.command-user-dropdown button svg{flex:0 0 auto}
+.command-user-dropdown .logout-item{color:#b42318}
+.command-user-dropdown .logout-item:hover{background:#fef2f2}
+.command-user-chevron{color:var(--ui-subtle,#a1a1aa)!important;font-size:14px}
+@media(max-width:640px){.command-user-dropdown{right:0;width:170px}}
